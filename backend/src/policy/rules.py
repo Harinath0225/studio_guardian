@@ -1,0 +1,22 @@
+from typing import Set
+from enum import Enum
+
+class RemediationActionType(str, Enum):
+    TRAFFIC_SHIFT = "TRAFFIC_SHIFT"
+    CONTAINER_RESTART = "CONTAINER_RESTART"
+    SCALE_REPLICAS = "SCALE_REPLICAS"
+
+# Strict allowlist of permissible autonomous / controlled actions
+ALLOWLISTED_ACTIONS: Set[str] = {
+    RemediationActionType.TRAFFIC_SHIFT.value,
+    RemediationActionType.CONTAINER_RESTART.value,
+    RemediationActionType.SCALE_REPLICAS.value
+}
+
+# Explicitly disallowed mutating operations
+FORBIDDEN_ACTIONS: Set[str] = {
+    "DATABASE_DROP",
+    "FLUSH_ALL_KEYS",
+    "TERMINATE_ORIGIN_CLUSTER",
+    "GLOBAL_DNS_PURGE"
+}

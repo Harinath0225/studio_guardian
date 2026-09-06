@@ -1,0 +1,216 @@
+openapi: 3.1.0
+info:
+  title: Studio Guardian API
+  description: Autonomous Live Media Incident Director API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Local development backend
+
+paths:
+  /incidents:
+    get:
+      summary: List all streaming incidents
+      operationId: listIncidents
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of incidents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Incident'
+
+  /incidents/{incident_id}:
+    get:
+      summary: Get complete incident details with latest agent findings
+      operationId: getIncident
+      parameters:
+        - name: incident_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Incident detail record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncidentDetail'
+        '404':
+          description: Incident not found
+
+  /incidents/{incident_id}/approve:
+    post:
+      summary: Operator approval or rejection for pending remediation
+      operationId: approveRemediation
+      parameters:
+        - name: incident_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [decision]
+              properties:
+                decision:
+                  type: string
+                  enum: [APPROVED, REJECTED]
+                operator_id:
+                  type: string
+                  default: operator-lead
+                comment:
+                  type: string
+      responses:
+        '200':
+          description: Approval acknowledged, workflow resumed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  action_status:
+                    type: string
+
+  /incidents/{incident_id}/override:
+    post:
+      summary: Emergency manual takeover aborting autonomous execution
+      operationId: manualOverride
+      parameters:
+        - name: incident_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Autonomous execution paused, state set to ESCALATED
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  incident_id:
+                    type: string
+                  status:
+                    type: string
+                    example: ESCALATED
+
+  /stream/events:
+    get:
+      summary: Real-time Server-Sent Events stream for telemetry and agent timeline
+      operationId: streamEvents
+      responses:
+        '200':
+          description: Continuous event stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+
+  /demo/incident:
+    post:
+      summary: Trigger reproducible demo incident
+      operationId: triggerDemoIncident
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                scenario:
+                  type: string
+                  default: "india_vs_australia_final"
+      responses:
+        '201':
+          description: Incident triggered and autonomous workflow started
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  incident_id:
+                    type: string
+                  event_title:
+                    type: string
+                  status:
+                    type: string
+
+  /demo/reset:
+    post:
+      summary: Reset demo simulation and clear active incidents
+      operationId: resetDemo
+      responses:
+        '200':
+          description: System reset to healthy state
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: HEALTHY
+
+components:
+  schemas:
+    Incident:
+      type: object
+      required: [id, event_title, status, severity, started_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        event_title:
+          type: string
+        status:
+          type: string
+        severity:
+          type: string
+        primary_affected_service:
+          type: string
+        affected_regions:
+          type: array
+          items:
+            type: string
+        started_at:
+          type: string
+          format: date-time
+        resolved_at:
+          type: string
+          format: date-time
+
+    IncidentDetail:
+      allOf:
+        - $ref: '#/components/schemas/Incident'
+        - type: object
+          properties:
+            latest_hypothesis:
+              type: object
+            business_impact:
+              type: object
+            pending_action:
+              type: object
+            timeline:
+              type: array
+              items:
+                type: object
