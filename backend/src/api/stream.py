@@ -30,6 +30,16 @@ async def stream_events(request: Request):
                     import json
                     msg = {"type": "TELEMETRY_HEARTBEAT", "data": telemetry}
                     yield f"data: {json.dumps(msg)}\n\n"
+
+                    # Emit live Loki logs matching active state
+                    try:
+                        from src.api.observability import generate_live_log_lines
+                        live_logs = generate_live_log_lines()
+                        if live_logs:
+                            log_msg = {"type": "LOKI_LOG_BATCH", "data": live_logs}
+                            yield f"data: {json.dumps(log_msg)}\n\n"
+                    except Exception:
+                        pass
         except asyncio.CancelledError:
             pass
         finally:

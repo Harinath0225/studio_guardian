@@ -12,7 +12,14 @@ class Settings(BaseSettings):
     PORT: int = 8000
     HOST: str = "0.0.0.0"
     LOG_LEVEL: str = "info"
-    CORS_ORIGINS: Union[List[str], str] = ["http://localhost:5173", "http://localhost:3000"]
+    CORS_ORIGINS: Union[List[str], str] = [
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://localhost:8000",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:8000",
+    ]
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
@@ -25,6 +32,7 @@ class Settings(BaseSettings):
 
     # Google Cloud & Gemini
     GOOGLE_CLOUD_PROJECT: str = "studio-guardian-demo"
+    GOOGLE_CLOUD_LOCATION: str = "us-central1"
     GOOGLE_GENAI_USE_VERTEXAI: bool = False
     GEMINI_API_KEY: str = "mock-dev-key"
     GEMINI_MODEL: str = "gemini-2.5-flash"
@@ -35,11 +43,31 @@ class Settings(BaseSettings):
     GRAFANA_MCP_SERVER_URL: str = "http://localhost:8001"
     USE_MOCK_GRAFANA_MCP: bool = True
 
+    # Grafana Cloud Loki Push Integration
+    GRAFANA_LOKI_URL: str = "https://logs-prod-026.grafana.net/loki/api/v1/push"
+    GRAFANA_LOKI_USER_ID: str = "1777745"
+    GRAFANA_LOKI_TOKEN: str = ""
+
     # Media Simulator & Policy
     MAX_REMEDIATION_RETRIES: int = 2
     AUTO_EXECUTE_MAX_BLAST_RADIUS_PCT: float = 25.0
     AUTO_EXECUTE_MIN_CONFIDENCE: float = 0.85
     VIDEO_PROXY_URL: str = "http://localhost:8000/api/v1/simulator/route"
+
+    # Predictive Prevention & Risk Model Configuration
+    PREDICTIVE_ENABLED: bool = True
+    PREDICTIVE_HORIZON_MINUTES_MIN: int = 5
+    PREDICTIVE_HORIZON_MINUTES_MAX: int = 15
+    PREDICTIVE_WEIGHT_GPU: float = 0.25
+    PREDICTIVE_WEIGHT_QUEUE: float = 0.20
+    PREDICTIVE_WEIGHT_LATENCY: float = 0.20
+    PREDICTIVE_WEIGHT_ERROR: float = 0.15
+    PREDICTIVE_WEIGHT_VIEWER: float = 0.10
+    PREDICTIVE_WEIGHT_DEPLOYMENT: float = 0.10
+    PREDICTIVE_RISK_THRESHOLD_AUTO_PREVENT: float = 0.80
+    PREDICTIVE_CONFIDENCE_THRESHOLD_AUTO_PREVENT: float = 0.85
+    PREDICTIVE_BLAST_RADIUS_MAX_AUTO_PREVENT: float = 20.0
+    PREDICTIVE_VERIFICATION_TIMEOUT_SECONDS: int = 90
 
     model_config = SettingsConfigDict(
         env_file=(".env", "../.env"),

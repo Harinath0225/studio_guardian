@@ -87,3 +87,51 @@ async def get_prometheus_metrics():
     """Prometheus exposition format scrape endpoint for Grafana."""
     metrics_text = MetricsGenerator.generate_prometheus_text()
     return Response(content=metrics_text, media_type="text/plain; version=0.0.4")
+
+
+# ─── BLACK SWAN CHAOS ENDPOINTS (FR-012) ─────────────────────────────────────
+
+@router.post("/api/v1/demo/black-swan/transcoder-surge")
+async def trigger_black_swan_transcoder_surge(db: AsyncSession = Depends(get_db)):
+    """Triggers deterministic Transcoder Capacity Surge leading indicators."""
+    from src.demo.scenarios import black_swan_engine
+    from src.persistence.models import BlackSwanRun
+    result = black_swan_engine.inject_transcoder_surge()
+    try:
+        run = BlackSwanRun(
+            scenario_name="TRANSCODER_SURGE",
+            status="INJECTED",
+            initial_telemetry=result["telemetry"]
+        )
+        db.add(run)
+        await db.commit()
+    except Exception:
+        pass
+    return result
+
+
+@router.post("/api/v1/demo/black-swan/scte35-corruption")
+async def trigger_black_swan_scte35_corruption(db: AsyncSession = Depends(get_db)):
+    """Triggers deterministic SCTE-35 ad cue timing drift and splice corruption."""
+    from src.demo.scenarios import black_swan_engine
+    from src.persistence.models import BlackSwanRun
+    result = black_swan_engine.inject_scte35_corruption()
+    try:
+        run = BlackSwanRun(
+            scenario_name="SCTE35_CORRUPTION",
+            status="INJECTED",
+            initial_telemetry=result["telemetry"]
+        )
+        db.add(run)
+        await db.commit()
+    except Exception:
+        pass
+    return result
+
+
+@router.post("/api/v1/demo/black-swan/reset")
+async def reset_black_swan(db: AsyncSession = Depends(get_db)):
+    """Resets environment back to healthy baseline."""
+    from src.demo.scenarios import black_swan_engine
+    result = black_swan_engine.reset_scenarios()
+    return result

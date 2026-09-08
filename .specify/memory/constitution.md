@@ -1,8 +1,8 @@
 <!--
 Sync Impact Report:
-- Version bump: 0.0.0 -> 1.0.0
-- Modified principles: Replaced template placeholders with 20 explicit STUDIO GUARDIAN principles.
-- Added sections: Added 20 principles under Core Principles. 
+- Version bump: 1.0.0 -> 2.0.0
+- Modified principles: Replaced previous 20 principles with 18 newly defined NON-NEGOTIABLE principles focusing heavily on predictive prevention, media domain intelligence, ad integrity, and mathematically traceable data.
+- Added sections: None.
 - Removed sections: None.
 - Follow-up TODOs: None.
 -->
@@ -11,65 +11,69 @@ Sync Impact Report:
 
 ## Core Principles
 
-### 1. Real Agentic System
-The product must be a genuine multi-agent system. The architecture must contain distinct specialist agents with explicit responsibilities (Incident Commander, Observability Investigator, Business Impact Agent, Remediation Agent, Verification Agent). Do not simulate multiple agents with prompt labels inside one monolithic LLM call. The Incident Commander is the supervisor and controls workflow progression.
+### 1. VERTEX AI IS THE AGENT RUNTIME
+Vertex AI Agent Builder / Agent Platform and the appropriate Google Agent Development Kit / Agent Engine integration must visibly participate in the real runtime. The application must NOT be a FastAPI application that merely calls Gemini.
 
-### 2. Hierarchical Supervisor Pattern
-Use: Incident Commander → Specialist agents → Shared persistent state → Verification → Loop or resolution. Avoid unnecessary peer-to-peer agent complexity. Agent responsibilities must remain clearly separated.
+The agent execution path must be demonstrable as:
+Application → Vertex AI Agent Runtime → Incident Commander → Specialist Agents → Tools / MCP → Decisions / Actions.
 
-### 3. Gemini is a Reasoning Component
-Gemini must perform meaningful reasoning including evidence correlation, root-cause hypothesis generation, remediation comparison, natural-language explanation, and report generation. Deterministic business logic must remain in code. Gemini must NOT be responsible for authorization, safety enforcement, financial calculations, workflow state transitions, permission checks, or arbitrary infrastructure access.
+The UI must expose truthful runtime information such as: agent runtime, agent name, current specialist, run/session identifier where available, agent state, and tool execution events. Do not fabricate Vertex AI runtime information.
 
-### 4. Google Cloud is Part of the Real Runtime
-The application must genuinely use Google's agent infrastructure and Gemini. Do not build a generic FastAPI application that happens to call Gemini. The Google Cloud agent framework must participate in the agent workflow. The deployed application must demonstrate actual Google Cloud runtime usage.
+### 2. GEMINI IS THE REASONING LAYER
+Gemini is responsible for: evidence interpretation, correlation, hypothesis generation, recommendation comparison, natural-language explanation, and stakeholder reports. Gemini must not be treated as the source of truth for raw telemetry or deterministic calculations.
 
-### 5. Grafana is a First-Class Partner Integration
-Grafana must be used at runtime (Hackathon track: Grafana Labs). The project must demonstrate actual use of Grafana MCP. Grafana must provide operational evidence including appropriate combinations of metrics, logs, traces, alerts, dashboards, and incidents. Do not merely include a Grafana logo, screenshots, or README references.
+### 3. GRAFANA MCP IS THE OPERATIONAL SOURCE OF TRUTH
+Grafana is the selected partner track. The primary evidence path must be: Media Environment → telemetry → Grafana → Grafana MCP → Agent.
 
-### 6. Media & Entertainment First
-This is NOT a generic AIOps product. Every important user-facing concept must relate to live media and entertainment. The primary scenario is a high-profile live entertainment event experiencing a streaming infrastructure failure. The system must reason about viewers, playback quality, transcoding, streaming, geography, advertising windows, subscriber impact, and business exposure.
+The application must make genuine runtime calls to Grafana MCP. Relevant telemetry can include: Prometheus metrics, Loki logs, Tempo traces, Grafana alerts, incident information, and dashboard information. The system must preserve source metadata for important evidence.
 
-### 7. Closed-Loop Autonomy
-The core product lifecycle is: OBSERVE → INVESTIGATE → CORRELATE → ASSESS → DECIDE → GOVERN → ACT → VERIFY → RESOLVE. The system must not stop at diagnosis.
+### 4. MATHEMATICALLY TRACEABLE DATA
+Every important numerical claim must have a traceable origin. For predictive and business calculations: RAW GRAFANA VALUE → NORMALIZATION → DERIVED FEATURE → FORMULA → RESULT → GEMINI EXPLANATION. Do not allow Gemini to invent telemetry values, risk scores, financial calculations or verification statistics.
 
-### 8. Actual Remediation
-The Remediation Agent must perform an actual controlled operation in the demo environment (e.g., traffic shift, service scale, controlled restart, configuration change). Changing a database record or UI label alone does not qualify as remediation.
+### 5. PREDICT BEFORE FAILURE
+The product must support proactive prevention. The primary predictive lifecycle is: MONITOR → DETECT LEADING SIGNALS → CALCULATE RISK → PREDICT → ASSESS IMPACT → GOVERN → PREVENT → VERIFY. The system must distinguish prediction from certainty. Never claim that an avoided incident definitely would have occurred.
 
-### 9. Independent Verification
-The Verification Agent must independently query telemetry after remediation. HTTP success is NOT proof of recovery. The incident can only become RESOLVED when verification confirms recovery.
+### 6. REACTIVE FALLBACK
+Prediction must not replace incident response. If user-visible degradation actually occurs: PREDICTION → INCIDENT → INVESTIGATE → REMEDIATE → VERIFY. The predictive and reactive systems must form one closed-loop product.
 
-### 10. Safety By Design
-No AI agent receives unrestricted infrastructure access. All remediation passes through a deterministic Safety Director. The policy must evaluate action type, confidence, blast radius, risk, and authorization. Unsafe actions require human approval.
+### 7. MEDIA DOMAIN INTELLIGENCE
+The product must reason about real media/entertainment signals and business concerns. Examples include: playback, transcoding, live streaming, SCTE-35, ad insertion, AV synchronization, loudness, dropped frames, regional delivery, viewers, ad windows, sponsor SLA, and business exposure.
 
-### 11. Persistent System of Record
-PostgreSQL is the durable workflow state. Important information must not exist only in React state or process memory. Persist incidents, agent runs, state transitions, observations, hypotheses, business impact, remediation actions, verification, audit events, and incident fingerprints.
+### 8. SEMANTIC MEDIA QUALITY
+Infrastructure health is not sufficient evidence of media health. The system should be able to detect situations where CPU, Memory, and HTTP are healthy, while media quality is degraded. Examples include: SCTE-35 splice timing drift, ad pod integrity failure, audio/video sync drift, frame drop anomaly, black-frame anomaly, and audio loudness deviation.
 
-### 12. Explainability Without Chain-Of-Thought
-Never expose private model chain-of-thought. The product must show concise evidence-based explanations (e.g., "Three correlated signals indicate transcoder-v42 as the most likely source"). Show evidence, confidence, decisions, supporting signals, and actions. Do not display hidden reasoning traces.
+### 9. AD INTEGRITY IS BUSINESS CRITICAL
+The Ad Integrity Agent may evaluate: SCTE-35 cue timing, splice alignment, ad pod integrity, ad tracking health, and manifest anomalies. A configured operational tolerance must be used. Do not claim regulatory or standards compliance unless an exact applicable specification/profile is verified. Represent thresholds such as "SCTE alignment tolerance = configured operational threshold" rather than presenting arbitrary thresholds as universal standards.
 
-### 13. Enterprise Security
-Follow least privilege. Never place API keys, service credentials, or infrastructure credentials in the frontend. Use backend-mediated tool access. Production secrets should be compatible with Google Secret Manager.
+### 10. PERCEPTUAL QUALITY IS A SIGNAL, NOT A FULL QC SYSTEM
+Keep perceptual analysis intentionally lightweight. Use a limited set of measurable signals: AV sync offset, loudness deviation, frame/drop ratio, and black-frame ratio. Do not attempt to implement a complete professional broadcast QC platform.
 
-### 14. UI/UX Quality
-The product must look like a premium enterprise product. The visual direction must be modern, sleek, professional, cinematic, highly readable, operational, and user friendly. Use tasteful 3D visual elements where they improve understanding. Avoid gimmicky 3D. The visual language should resemble a futuristic global broadcast operations center.
+### 11. SAFETY BEFORE AUTONOMY
+Autonomous action must pass deterministic policy. Policy inputs include: confidence, risk, blast radius, cost, expected benefit, authorization, and action allowlist. AI cannot bypass Safety Director rules.
 
-### 15. Functionality Over Complexity
-Prefer one deployable backend over many microservices. Prefer logical agent separation over network-level agent fragmentation. Avoid unnecessary Kubernetes, event infrastructure, vector databases, and distributed systems.
+### 12. BUSINESS VALUE MUST BE CALCULABLE
+Business Impact Agent must use transparent deterministic formulas. 
+Expected incident exposure = expected viewer loss + expected advertising loss + SLA exposure.
+Preventive value = expected loss without intervention - expected loss after intervention - cost of prevention.
+All monetary values must be labeled as estimates.
 
-### 16. Demo-First Engineering
-The primary demo must work deterministically. The system must support: TRIGGER INCIDENT → RUN MULTI-AGENT WORKFLOW → REMEDIATE → VERIFY → RESOLVE. A judge must be able to reproduce the workflow.
+### 13. BLACK SWAN GAME DAY
+The application must provide a deterministic chaos injection facility. The demo must be able to intentionally introduce: transcoder stress, regional delivery degradation, SCTE-35 corruption, and perceptual media quality failure. A judge must be able to trigger a scenario without modifying code.
 
-### 17. Hackathon Compliance
-The project must satisfy the hackathon requirements for: Gemini, Google Cloud Agent Builder/Platform/ADK, Grafana partner integration, real media and entertainment workflow, public source repository, open-source license, hosted application, reproducible demo, and three-minute functioning demo. The code repository must demonstrate actual runtime partner and Google Cloud usage.
+### 14. COUNTERFACTUAL HONESTY
+When prevention succeeds before an actual outage, do NOT say "we saved exactly $142,500." Instead say "Estimated exposure avoided: $142,500." The UI must distinguish between OBSERVED, PREDICTED, ESTIMATED, and VERIFIED.
 
-### 18. Testability
-Every important capability must be testable. Use automated tests for safety policies, workflow transitions, business impact, agent schemas, remediation, verification, and API behavior.
+### 15. CLOSED-LOOP PROOF
+Success requires evidence for the complete lifecycle: Grafana evidence → mathematical computation → Gemini reasoning → agent decision → policy decision → remediation → fresh Grafana evidence → verification.
 
-### 19. Observability Of The Agents
-The system itself must be observable. Record agent, run, state, tool invocation, duration, result, failure, and decision. The React UI should expose an understandable operational timeline.
+### 16. UX
+The interface must communicate an enterprise-grade broadcast operations center. It should be modern, sleek, premium, professional, cinematic, and user-friendly. 3D visualizations must explain the operational system and must never become decorative gimmicks.
 
-### 20. Winner-Level Product Principle
-The product must not feel like "ChatGPT for Grafana". It must feel like: "An autonomous Incident Director purpose-built for live media operations." Every architecture and UX decision should strengthen that story.
+### 17. DEMO-FIRST PRIORITY
+The system must have one deterministic flagship demo: PREDICT → PREVENT → VERIFY, followed by: INJECT BLACK SWAN → DETECT → INVESTIGATE → REMEDIATE → VERIFY. This demonstrates both proactive and reactive autonomy.
+
+### 18. HACKATHON COMPLIANCE
+The implementation must visibly prove: Gemini runtime, Vertex AI Agent Builder / Agent Platform / Agent Engine, Google Cloud runtime, real Grafana MCP, real media workflow, multi-agent orchestration, actual controlled remediation, independent verification, public open-source repository readiness, and a reproducible demo.
 
 ## Additional Constraints
 
@@ -83,4 +87,4 @@ Development strictly adheres to the principles outlined above. All specification
 
 This constitution supersedes all other practices. All PRs, code reviews, and architecture decisions must verify compliance with these principles. Amendments require documentation and explicit justification.
 
-**Version**: 1.0.0 | **Ratified**: 2026-09-06 | **Last Amended**: 2026-09-06
+**Version**: 2.0.0 | **Ratified**: 2026-09-06 | **Last Amended**: 2026-09-08

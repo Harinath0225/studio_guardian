@@ -6,6 +6,8 @@ from src.config import settings
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup tasks
+    from src.persistence.database import init_db
+    await init_db()
     yield
     # Shutdown tasks
 
@@ -21,11 +23,16 @@ from src.api.demo import router as demo_router
 from src.api.approvals import router as approvals_router
 from src.api.stream import router as stream_router
 from src.api.reports import router as reports_router
+from src.api.prediction import router as prediction_router
+from src.api.provenance import router as provenance_router
+from src.api.observability import router as observability_router
+from src.api.review import router as review_router
 
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
+    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -36,6 +43,11 @@ app.include_router(demo_router)
 app.include_router(approvals_router)
 app.include_router(stream_router)
 app.include_router(reports_router)
+app.include_router(prediction_router)
+app.include_router(provenance_router)
+app.include_router(observability_router)
+app.include_router(review_router)
+
 
 @app.get("/healthz")
 async def health_check():

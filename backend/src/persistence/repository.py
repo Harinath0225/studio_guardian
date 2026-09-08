@@ -319,3 +319,41 @@ class IncidentRepository:
         self.session.add(log)
         await self.session.flush()
         return log
+
+    async def promote_predictive_context(
+        self,
+        incident_id: Union[str, uuid.UUID],
+        snapshot_data: dict,
+        query_cache: Optional[List[dict]] = None
+    ) -> None:
+        """
+        Promotes predictive snapshot details, contributing factors, and Grafana MCP
+        telemetry observations directly into the reactive incident observation and event log.
+        """
+        uid = self._to_uuid(incident_id)
+        await self.add_incident_event(
+            incident_id=uid,
+            event_type="PREDICTIVE_CONTEXT_PROMOTED",
+            source_agent="PredictiveRiskAgent",
+            summary=f"Inherited predictive risk {snapshot_data.get('risk_score', 0)} ({snapshot_data.get('state', 'UNKNOWN')})",
+            payload=snapshot_data
+        )
+
+        contributors = snapshot_data.get("contributors", [])
+        for contrib in contributors:
+            await self.record_observation(
+                incident_id=uid,
+                source="PredictiveRiskEngine",
+                signal_name=contrib.get("factor_name", "risk_factor") if isinstance(contrib, dict) else getattr(contrib, "factor_name", "risk_factor"),
+                raw_data=contrib if isinstance(contrib, dict) else (contrib.dict() if hasattr(contrib, "dict") else contrib.model_dump())
+            )
+
+        if query_cache:
+            for q in query_cache:
+                await self.record_observation(
+                    incident_id=uid,
+                    source="GrafanaMCP_Cache",
+                    signal_name=q.get("query_expression", "promql_query"),
+                    raw_data=q
+                )
+

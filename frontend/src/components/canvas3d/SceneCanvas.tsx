@@ -7,9 +7,16 @@ import { ServiceNodes } from './ServiceNodes';
 interface SceneCanvasProps {
   status: string;
   activeWeights: Record<string, number>;
+  predictiveState?: string;
+  riskScore?: number;
 }
 
-export const SceneCanvas: React.FC<SceneCanvasProps> = ({ status, activeWeights }) => {
+export const SceneCanvas: React.FC<SceneCanvasProps> = ({
+  status,
+  activeWeights,
+  predictiveState,
+  riskScore = 0,
+}) => {
   return (
     <div className="relative h-64 sm:h-72 w-full rounded-xl overflow-hidden glass-panel border border-white/10 flex items-center justify-center">
       <div className="absolute top-3 left-4 z-10 font-mono text-xs text-gray-400 uppercase tracking-wider flex items-center gap-2">
@@ -22,7 +29,10 @@ export const SceneCanvas: React.FC<SceneCanvasProps> = ({ status, activeWeights 
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /> Healthy
         </span>
         <span className="flex items-center gap-1">
-          <span className="h-1.5 w-1.5 rounded-full bg-red-400" /> Degraded
+          <span className="h-1.5 w-1.5 rounded-full bg-red-400" /> Stress/Degraded
+        </span>
+        <span className="flex items-center gap-1">
+          <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" /> Prevented
         </span>
         <span className="flex items-center gap-1">
           <span className="h-1.5 w-1.5 rounded-full bg-gray-400" /> Standby
@@ -35,10 +45,16 @@ export const SceneCanvas: React.FC<SceneCanvasProps> = ({ status, activeWeights 
           <pointLight position={[10, 10, 10]} intensity={1.5} />
           <pointLight position={[-10, -10, -10]} intensity={0.5} color="#3B82F6" />
           <BroadcastCore status={status} />
-          <ServiceNodes status={status} activeWeights={activeWeights} />
+          <ServiceNodes
+            status={status}
+            activeWeights={activeWeights}
+            predictiveState={predictiveState}
+            riskScore={riskScore}
+          />
           <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={0.5} />
         </Canvas>
       </Suspense>
     </div>
   );
 };
+

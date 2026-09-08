@@ -183,3 +183,187 @@ class AuditLog(Base):
     resource_id = Column(String(100), nullable=False)
     details = Column(JSON_TYPE, nullable=False, default=dict)
     created_at = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
+
+
+# ─── PREDICTIVE PREVENTION ENTITIES ───────────────────────────────────────────
+
+class PredictiveSnapshot(Base):
+    __tablename__ = "predictive_snapshots"
+
+    id = Column(UUID_TYPE, primary_key=True, default=uuid.uuid4)
+    sampled_at = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc), index=True)
+    channel_id = Column(String(100), nullable=False, default="star-sports-hindi")
+    region = Column(String(50), nullable=False, default="ap-south-1")
+
+    # Raw metrics
+    gpu_utilization_raw = Column(Float, nullable=False, default=0.0)
+    transcoder_latency_raw = Column(Float, nullable=False, default=0.0)
+    queue_depth_raw = Column(Integer, nullable=False, default=0)
+    playback_error_rate_raw = Column(Float, nullable=False, default=0.0)
+    active_viewers_raw = Column(Integer, nullable=False, default=0)
+
+    # Normalized metrics [0.0 - 1.0]
+    gpu_utilization_norm = Column(Float, nullable=False, default=0.0)
+    transcoder_latency_norm = Column(Float, nullable=False, default=0.0)
+    queue_growth_slope = Column(Float, nullable=False, default=0.0)
+    error_growth_slope = Column(Float, nullable=False, default=0.0)
+    viewer_growth_slope = Column(Float, nullable=False, default=0.0)
+    regional_saturation_norm = Column(Float, nullable=False, default=0.0)
+    deployment_risk_norm = Column(Float, nullable=False, default=0.0)
+
+    # Relationships
+    evidence = relationship("PredictionEvidence", back_populates="snapshot", cascade="all, delete-orphan")
+    decision = relationship("PredictionDecision", back_populates="snapshot", uselist=False, cascade="all, delete-orphan")
+
+
+class PredictionEvidence(Base):
+    __tablename__ = "prediction_evidence"
+
+    id = Column(UUID_TYPE, primary_key=True, default=uuid.uuid4)
+    snapshot_id = Column(UUID_TYPE, ForeignKey("predictive_snapshots.id", ondelete="CASCADE"), nullable=False, index=True)
+    queried_at = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
+    tool_name = Column(String(100), nullable=False)
+    query_expression = Column(Text, nullable=False)
+    raw_response = Column(JSON_TYPE, nullable=False, default=dict)
+    query_duration_ms = Column(Float, nullable=False, default=0.0)
+    provider_source = Column(String(50), nullable=False, default="MOCK_GRAFANA_MCP")
+
+    snapshot = relationship("PredictiveSnapshot", back_populates="evidence")
+
+
+class PredictionDecision(Base):
+    __tablename__ = "prediction_decisions"
+
+    id = Column(UUID_TYPE, primary_key=True, default=uuid.uuid4)
+    snapshot_id = Column(UUID_TYPE, ForeignKey("predictive_snapshots.id", ondelete="CASCADE"), nullable=False, index=True)
+    decided_at = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc), index=True)
+    risk_score = Column(Float, nullable=False, default=0.0)
+    risk_level = Column(String(50), nullable=False, default="HEALTHY")
+    confidence_score = Column(Float, nullable=False, default=0.0)
+    risk_contributors = Column(JSON_TYPE, nullable=False, default=list)
+    predicted_failure_mode = Column(String(100), nullable=True)
+    window_minutes_min = Column(Integer, nullable=True)
+    window_minutes_max = Column(Integer, nullable=True)
+    failure_hypothesis = Column(Text, nullable=True)
+    reasoning_summary = Column(Text, nullable=True)
+    agent_session_id = Column(String(100), nullable=True)
+    runtime_metadata = Column(JSON_TYPE, nullable=False, default=dict)
+
+    snapshot = relationship("PredictiveSnapshot", back_populates="decision")
+    action = relationship("PreventionAction", back_populates="decision", uselist=False, cascade="all, delete-orphan")
+
+
+class PreventionAction(Base):
+    __tablename__ = "prevention_actions"
+
+    id = Column(UUID_TYPE, primary_key=True, default=uuid.uuid4)
+    decision_id = Column(UUID_TYPE, ForeignKey("prediction_decisions.id", ondelete="CASCADE"), nullable=False, index=True)
+    dispatched_at = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
+    action_type = Column(String(100), nullable=False)
+    target_service = Column(String(100), nullable=False)
+    action_parameters = Column(JSON_TYPE, nullable=False, default=dict)
+    blast_radius_pct = Column(Float, nullable=False, default=0.0)
+    expected_loss_without_action = Column(Float, nullable=False, default=0.0)
+    cost_of_prevention = Column(Float, nullable=False, default=0.0)
+    expected_avoided_exposure = Column(Float, nullable=False, default=0.0)
+    policy_verdict = Column(String(50), nullable=False, default="AUTO_EXECUTE")
+    authorization_tier = Column(String(50), nullable=False, default="AUTONOMOUS")
+    operator_id = Column(String(100), nullable=True)
+    execution_status = Column(String(50), nullable=False, default="PENDING")
+    completed_at = Column(DateTime(timezone=True), nullable=True)
+
+    decision = relationship("PredictionDecision", back_populates="action")
+    verification = relationship("PreventionVerification", back_populates="action", uselist=False, cascade="all, delete-orphan")
+
+
+class PreventionVerification(Base):
+    __tablename__ = "prevention_verifications"
+
+    id = Column(UUID_TYPE, primary_key=True, default=uuid.uuid4)
+    action_id = Column(UUID_TYPE, ForeignKey("prevention_actions.id", ondelete="CASCADE"), nullable=False, index=True)
+    verified_at = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
+    risk_score_before = Column(Float, nullable=False)
+    risk_score_after = Column(Float, nullable=False)
+    gpu_before = Column(Float, nullable=False)
+    gpu_after = Column(Float, nullable=False)
+    latency_before = Column(Float, nullable=False)
+    latency_after = Column(Float, nullable=False)
+    error_rate_before = Column(Float, nullable=False)
+    error_rate_after = Column(Float, nullable=False)
+    verification_verdict = Column(String(50), nullable=False, default="PREVENTION_VERIFIED")
+    net_avoided_loss = Column(Float, nullable=False, default=0.0)
+    estimated_viewers_protected = Column(Integer, nullable=False, default=0)
+
+    @property
+    def delta_gpu_utilization(self) -> float:
+        return self.gpu_after - self.gpu_before
+
+    @property
+    def verified_successful(self) -> bool:
+        return self.verification_verdict in ("PREVENTION_VERIFIED", "VERIFIED_SUCCESSFUL")
+
+    action = relationship("PreventionAction", back_populates="verification")
+    fingerprint = relationship("PredictionFingerprint", back_populates="verification", uselist=False, cascade="all, delete-orphan")
+
+
+class PredictionFingerprint(Base):
+    __tablename__ = "prediction_fingerprints"
+
+    id = Column(UUID_TYPE, primary_key=True, default=uuid.uuid4)
+    verification_id = Column(UUID_TYPE, ForeignKey("prevention_verifications.id", ondelete="CASCADE"), nullable=True)
+    recorded_at = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
+    service_name = Column(String(100), nullable=False)
+    failure_pattern = Column(String(100), nullable=False)
+    signature_signals = Column(JSON_TYPE, nullable=False, default=dict)
+    proven_action = Column(String(100), nullable=False)
+    times_applied = Column(Integer, nullable=False, default=1)
+    success_rate = Column(Float, nullable=False, default=1.0)
+
+    verification = relationship("PreventionVerification", back_populates="fingerprint")
+
+
+class MediaQualityEvent(Base):
+    __tablename__ = "media_quality_events"
+
+    id = Column(UUID_TYPE, primary_key=True, default=uuid.uuid4)
+    timestamp = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc), index=True)
+    stream_id = Column(String(100), nullable=False, default="star-sports-live")
+    av_sync_drift_ms = Column(Float, nullable=False, default=0.0)
+    loudness_lufs = Column(Float, nullable=False, default=-24.0)
+    loudness_deviation_lufs = Column(Float, nullable=False, default=0.0)
+    frame_drop_ratio_pct = Column(Float, nullable=False, default=0.0)
+    black_frame_ratio_pct = Column(Float, nullable=False, default=0.0)
+    is_anomaly = Column(Boolean, nullable=False, default=False)
+    severity = Column(String(20), nullable=False, default="INFO")
+    details = Column(JSON_TYPE, nullable=False, default=dict)
+
+
+class AdIntegrityEvent(Base):
+    __tablename__ = "ad_integrity_events"
+
+    id = Column(UUID_TYPE, primary_key=True, default=uuid.uuid4)
+    timestamp = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc), index=True)
+    stream_id = Column(String(100), nullable=False, default="star-sports-live")
+    scte_timing_drift_ms = Column(Float, nullable=False, default=0.0)
+    splice_alignment_error_ms = Column(Float, nullable=False, default=0.0)
+    ad_pod_drop_pct = Column(Float, nullable=False, default=0.0)
+    tracking_error_ratio = Column(Float, nullable=False, default=0.0)
+    operational_tolerance_ms = Column(Float, nullable=False, default=200.0)
+    is_anomaly = Column(Boolean, nullable=False, default=False)
+    severity = Column(String(20), nullable=False, default="INFO")
+    estimated_ad_exposure_usd = Column(Float, nullable=False, default=0.0)
+    details = Column(JSON_TYPE, nullable=False, default=dict)
+
+
+class BlackSwanRun(Base):
+    __tablename__ = "black_swan_runs"
+
+    id = Column(UUID_TYPE, primary_key=True, default=uuid.uuid4)
+    scenario_name = Column(String(100), nullable=False, index=True)
+    injected_at = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
+    triggered_by = Column(String(100), nullable=False, default="operator")
+    status = Column(String(50), nullable=False, default="INJECTED")
+    resolved_at = Column(DateTime(timezone=True), nullable=True)
+    initial_telemetry = Column(JSON_TYPE, nullable=False, default=dict)
+    final_telemetry = Column(JSON_TYPE, nullable=True)
+

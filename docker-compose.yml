@@ -1,4 +1,5 @@
 services:
+  # Alias 'db' maps to 'postgres' so `docker compose up -d db` works
   postgres:
     image: postgres:16-alpine
     container_name: studio_guardian_postgres
@@ -17,6 +18,21 @@ services:
       timeout: 5s
       retries: 5
 
+  db:
+    image: postgres:16-alpine
+    container_name: studio_guardian_postgres_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: studio_guardian
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    profiles:
+      - db-alias
+
   grafana:
     image: grafana/grafana:11.1.0
     container_name: studio_guardian_grafana
@@ -29,6 +45,23 @@ services:
       - GF_USERS_ALLOW_SIGN_UP=false
     volumes:
       - grafana_data:/var/lib/grafana
+
+  # Official Grafana MCP Server (Go binary via Docker)
+  # Set USE_MOCK_GRAFANA_MCP=false in .env when running this service
+  grafana-mcp:
+    image: grafana/mcp-grafana:latest
+    container_name: studio_guardian_grafana_mcp
+    restart: unless-stopped
+    ports:
+      - "8001:8000"
+    environment:
+      - GRAFANA_URL=${GRAFANA_URL:-http://grafana:3000}
+      - GRAFANA_SERVICE_ACCOUNT_TOKEN=${GRAFANA_SERVICE_ACCOUNT_TOKEN}
+    command: ["-t", "streamable-http", "--allowed-hosts", "localhost:8001"]
+    depends_on:
+      - grafana
+    profiles:
+      - mcp
 
 volumes:
   postgres_data:

@@ -120,3 +120,31 @@ class BusinessImpactAgent(BaseAgent):
         assessment.recommendation_urgency = metrics["recommendation_urgency"]
 
         return assessment
+
+    def calculate_prevention_economics(
+        self,
+        total_viewers: int = 12_400_000,
+        risk_score: float = 0.85,
+        blast_radius_pct: float = 15.0,
+        action_type: str = "scale_transcoder_pool",
+    ) -> Dict[str, float]:
+        """
+        Calculates expected loss without action, cost of prevention, and net avoided exposure.
+        """
+        projected_disrupted_viewers = int(total_viewers * (blast_radius_pct / 100.0) * risk_score)
+        ad_loss = (projected_disrupted_viewers * (12.0 * (10.0 / 60.0)) / 1000.0) * self.cpm_usd
+        sla_risk = 25000.0 if risk_score >= 0.80 else 10000.0
+        expected_loss = round(ad_loss + sla_risk, 2)
+
+        hourly_node_cost = 42.50
+        nodes = 8 if "scale" in action_type else 2
+        prevention_cost = round(nodes * hourly_node_cost * 1.0, 2)
+        expected_avoided_exposure = round(max(0.0, expected_loss - prevention_cost), 2)
+
+        return {
+            "expected_loss_without_action": expected_loss,
+            "cost_of_prevention": prevention_cost,
+            "expected_avoided_exposure": expected_avoided_exposure,
+            "projected_disrupted_viewers": projected_disrupted_viewers,
+        }
+

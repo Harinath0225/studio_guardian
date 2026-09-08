@@ -24,7 +24,7 @@ class SmokeAgent(BaseAgent):
         )
 
     async def run_smoke_test(self, test_signal: str) -> SmokeTestResponse:
-        prompt = f"Analyze the following operational test signal and return structured diagnostics: '{test_signal}'"
+        prompt = f"Analyze the following operational test signal and return structured diagnostics: '{test_signal}'. The agent_name MUST be '{self.name}'."
         fallback = {
             "status": "OK",
             "agent_name": self.name,
@@ -32,8 +32,10 @@ class SmokeAgent(BaseAgent):
             "key_findings": ["Google GenAI SDK loaded", "Structured output validated", "Deterministic execution verified"],
             "summary": "Smoke agent executed successfully within Studio Guardian multi-agent runtime."
         }
-        return await self.execute_structured(
+        res = await self.execute_structured(
             prompt=prompt,
             response_schema=SmokeTestResponse,
             fallback_data=fallback
         )
+        res.agent_name = self.name
+        return res

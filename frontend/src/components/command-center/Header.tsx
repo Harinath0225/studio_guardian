@@ -13,6 +13,8 @@ interface HeaderProps {
   onEmergencyTakeover?: () => Promise<void>;
   isDegraded: boolean;
   actionLoading?: boolean;
+  mode?: 'PREDICTIVE' | 'REACTIVE';
+  onModeChange?: (mode: 'PREDICTIVE' | 'REACTIVE') => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -24,7 +26,9 @@ export const Header: React.FC<HeaderProps> = ({
   onForceFailure,
   onEmergencyTakeover,
   isDegraded,
-  actionLoading = false
+  actionLoading = false,
+  mode = 'PREDICTIVE',
+  onModeChange,
 }) => {
   return (
     <header className="glass-panel sticky top-0 z-50 border-b border-white/10 px-6 py-4">
@@ -46,6 +50,34 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
+        {/* Predictive vs Reactive Mode Switcher */}
+        {onModeChange && (
+          <div className="flex items-center bg-black/60 p-1 rounded-lg border border-white/10 font-mono text-xs">
+            <button
+              onClick={() => onModeChange('PREDICTIVE')}
+              className={`px-3 py-1.5 rounded-md font-semibold transition-all flex items-center gap-2 ${
+                mode === 'PREDICTIVE'
+                  ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-md shadow-cyan-500/20'
+                  : 'text-gray-400 hover:text-gray-200'
+              }`}
+            >
+              <span className={`h-2 w-2 rounded-full ${mode === 'PREDICTIVE' ? 'bg-cyan-300 animate-pulse' : 'bg-gray-500'}`} />
+              Predictive Ops
+            </button>
+            <button
+              onClick={() => onModeChange('REACTIVE')}
+              className={`px-3 py-1.5 rounded-md font-semibold transition-all flex items-center gap-2 ${
+                mode === 'REACTIVE'
+                  ? 'bg-gradient-to-r from-amber-600 to-red-600 text-white shadow-md shadow-red-500/20'
+                  : 'text-gray-400 hover:text-gray-200'
+              }`}
+            >
+              <span className={`h-2 w-2 rounded-full ${mode === 'REACTIVE' ? 'bg-red-400 animate-pulse' : 'bg-gray-500'}`} />
+              Incident Director
+            </button>
+          </div>
+        )}
+
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <span className="text-xs text-gray-400 uppercase tracking-wider font-mono">Stream Status:</span>
@@ -63,6 +95,7 @@ export const Header: React.FC<HeaderProps> = ({
           />
 
           <div className="h-6 w-px bg-white/10" />
+
 
           {/* Hackathon Demo Control Bar */}
           <div className="flex items-center gap-2 bg-black/40 p-1.5 rounded-lg border border-white/10">

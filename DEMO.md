@@ -1,95 +1,53 @@
-# Studio Guardian — 3-Minute Judge Reproduction Guide
+﻿# Studio Guardian: Flagship Demonstration Guide
 
-Follow these exact steps to run and evaluate **Studio Guardian** during hackathon judging.
-
----
-
-## Prerequisites
-
-- **Python 3.12+** with `uv` or `pip`
-- **Node.js 18+** with `npm`
-- Git
+Autonomous reliability and revenue-protection system for live media broadcasting.
+Demonstrates both **Proactive Predictive Defense** and **Closed-Loop Reactive Fallback**.
 
 ---
 
-## Option 1: Automated 1-Click Reproduction (Recommended)
+## 3-Minute Live Demonstration Walkthrough
 
-In terminal 1, start the backend:
-```bash
-cd backend
-python -m venv .venv
-# On Windows:
-.venv\Scripts\activate
-# On Linux/macOS:
-source .venv/bin/activate
-
-uv pip install -r pyproject.toml
-uvicorn src.main:app --port 8000
-```
-
-In terminal 2, execute the judge reproduction script:
-```bash
-python scripts/run_demo.py
-```
-
-This runs the entire end-to-end incident lifecycle with real-time logs:
-1. Verifies healthy baseline.
-2. Triggers the India vs Australia Final transcoding memory segfault.
-3. Observability Investigator queries Grafana MCP.
-4. Business Impact Agent computes viewer and ad burn figures.
-5. Safety Director evaluates the 25% blast radius policy.
-6. Remediation Agent executes controlled traffic shifting on the video proxy.
-7. Verification Agent confirms stabilization.
-8. Automatically fetches and prints the completed Engineering RCA report!
+### Part 1: Proactive Predictive Defense (Predict &rarr; Prevent &rarr; Prove)
+1. Navigate to **Tab 1: PREDICT (Risk & Telemetry)**.
+2. Note the initial nominal baseline: GPU at 65%, Transcoder latency at 220ms, Queue depth at 6 frames, Error rate nominal at 0.41%.
+3. Switch to **Tab 4: GAME DAY (Black Swan Chaos)** and click **Inject Transcoder Surge**.
+4. Return to **PREDICT**:
+   - Transcoder GPU climbs to 93.4% and Queue depth expands to 48 frames.
+   - Composite risk score elevates to **IMMINENT_RISK (0.87)**.
+   - Failure horizon countdown computes a failure window between **3 and 8 minutes**.
+   - Note that playback error rate remains nominal (0.48%) &mdash; predicting failure *before* audience impact.
+5. Click **Data Provenance** in the top right:
+   - Inspect the exact raw values, SLO min-max bounds, and feature weights.
+6. Switch to **Tab 2: PROTECT (Policy & Scaling)**:
+   - Review the candidate action: `scale_transcoder_pool` (8 &rarr; 16 nodes).
+   - Review counterfactual ROI: **Estimated Exposure Avoided: $45,660.00**.
+   - Safety Director verifies blast radius is 0.0% and marks policy as **Auto-Execute Approved**.
+   - Click **Execute Capacity Scaling** (or watch autonomous trigger).
+   - Inspect the **Verification Results Panel**: fresh Grafana telemetry confirms GPU drops to 61.2% and queue drops to 12. Verdict: `PREVENTION_VERIFIED`.
 
 ---
 
-## Option 2: Interactive Web UI Experience
-
-### 1. Launch the Backend
-```bash
-cd backend
-uvicorn src.main:app --port 8000 --reload
-```
-
-### 2. Launch the Frontend
-```bash
-cd frontend
-npm install
-npm run dev
-```
-Open **http://localhost:5173** in your browser.
+### Part 2: Semantic Media Quality & Ad Integrity
+1. Navigate to **Tab 4: GAME DAY (Black Swan Chaos)**.
+2. Click **Inject SCTE-35 Corruption**.
+3. Note that server infrastructure (CPU/Memory/GPU) remains nominal (proving the Semantic Media Quality principle).
+4. The **Ad Integrity Sentinel** detects:
+   - SCTE-35 cue drift of **+420.0ms**, exceeding the configured operational tolerance of &plusmn;200ms.
+   - Ad pod drop rises to 8.5%, creating immediate ad revenue exposure.
+   - Recommends activating the emergency backup ad slate.
 
 ---
 
-## Walkthrough Steps for Judges
+### Part 3: Reactive Incident Fallback
+1. In **Tab 4: GAME DAY**, click **Inject Sudden Outage**.
+2. The UI instantly detects playback error spike (8.7%) in Australia & Singapore and automatically transitions to **Tab 3: RESPOND (Incident Fallback)**.
+3. Incident Commander activates:
+   - Root Cause Hypothesis identifies transcoder cluster degradation.
+   - Business Impact Agent calculates affected viewers (1,820,000) and SLA penalty exposure.
+   - Click **Divert 100% Traffic to Standby (transcoder-us-01)**.
+   - Fresh telemetry confirms error rate recovers to 0.38% and stream returns to nominal health.
 
-1. **Observe Nominal State**:
-   - The 3D Broadcast Globe in the top-left pulses in **emerald green**.
-   - Playback error rate is `< 0.5%`, transcode latency is `~18ms`.
-   - All specialist agents in the control room show `IDLE`.
+---
 
-2. **Trigger Degradation**:
-   - Click the red **"Trigger Incident"** button on the floating demo bar (or top-right header).
-   - Instant state transition: 3D globe turns **red**, error rate spikes to `8.7%`, and Prometheus alert `HighMediaBufferRatioAlert` fires.
-
-3. **Watch Autonomous Multi-Agent Response**:
-   - **Observability Investigator**: Active pulse turns cyan; samples Grafana Prometheus, Loki, and Tempo. Correlates SEI segfault with recent deployment.
-   - **Business Impact Agent**: Quantifies `1,820,000` disrupted viewers, `72,800` VIP 4K subscribers, and `$18,750` ad revenue exposure.
-   - **Safety Director**: Checks policy rules. Blast radius is `14.7%` (&le; 25.0%), confidence is `92%` (&ge; 85%) &rarr; issues `AUTO_EXECUTE`.
-   - **Remediation Agent**: Dispatches traffic shift to warm standby `transcoder-us-01`.
-   - **Verification Agent**: Independently samples Prometheus metrics; verifies error rate dropped to `0.38%` and latency dropped to `19.5ms`.
-
-4. **Stream Restored (RESOLVED)**:
-   - 3D globe transitions back to glowing **emerald green**.
-   - Traffic routing dial shifts 100% of AU/SG traffic to standby.
-   - Status badge shows `RESOLVED`.
-
-5. **Inspect Post-Incident Reports**:
-   - Click **"Open Post-Incident RCA Drawer"** in the footer.
-   - View the complete Engineering RCA with before/after telemetry deltas and the Executive Sponsor Brief.
-   - Download the generated markdown report directly.
-
-6. **Test Escalation Safeguard (Force Failure)**:
-   - Click **"Force Escalate"**.
-   - Studio Guardian attempts remediation, detects persistent failure, retries once, and then cleanly transitions to **`ESCALATED_HUMAN_TAKEOVER`** to protect the broadcast.
+### Part 4: Reset
+- In the floating bottom simulator bar or Game Day tab, click **Reset Baseline** to instantly return all telemetry to clean nominal state.

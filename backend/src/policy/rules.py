@@ -13,6 +13,18 @@ ALLOWLISTED_ACTIONS: Set[str] = {
     RemediationActionType.SCALE_REPLICAS.value
 }
 
+# Allowlisted actions for predictive proactive prevention
+PREDICTIVE_ALLOWLISTED_ACTIONS: Set[str] = {
+    "scale_transcoder_pool",
+    "SCALE_TRANSCODER_POOL",
+    "prewarm_failover_nodes",
+    "PREWARM_FAILOVER_NODES",
+    "traffic_shed_noncritical",
+    "TRAFFIC_SHED_NONCRITICAL",
+    RemediationActionType.SCALE_REPLICAS.value,
+    RemediationActionType.TRAFFIC_SHIFT.value,
+}
+
 # Explicitly disallowed mutating operations
 FORBIDDEN_ACTIONS: Set[str] = {
     "DATABASE_DROP",
@@ -20,3 +32,4 @@ FORBIDDEN_ACTIONS: Set[str] = {
     "TERMINATE_ORIGIN_CLUSTER",
     "GLOBAL_DNS_PURGE"
 }
+

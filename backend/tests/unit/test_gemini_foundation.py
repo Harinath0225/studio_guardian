@@ -27,6 +27,8 @@ async def test_smoke_agent_structured_execution():
 async def test_structured_fallback_synthesis():
     client = GoogleGenAIClient()
     # Force offline invocation
+    client._client = None
+    client._is_live = False
     res = await client.generate_structured(
         prompt="Test prompt",
         response_schema=SmokeTestResponse,

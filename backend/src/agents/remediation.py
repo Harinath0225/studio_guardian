@@ -36,7 +36,7 @@ class RemediationAgent(BaseAgent):
             f"Propose an operational remediation plan for incident {incident_id}.\n"
             f"Diagnosed Root Cause: {primary_root_cause}\n"
             f"Failing Subsystem: {target_component}\n"
-            f"Formulate a minimal-blast-radius plan."
+            f"Formulate a minimal-blast-radius plan. Set action_type='TRAFFIC_SHIFT' to divert traffic to standby cluster 'transcoder-us-01' with shift_pct=100.0."
         )
 
         fallback = {
@@ -77,6 +77,18 @@ class RemediationAgent(BaseAgent):
                 details=res,
                 executed_at=now
             )
+        elif plan.action_type in ["scale_transcoder_pool", "SCALE_TRANSCODER_POOL", "SCALE_REPLICAS"]:
+            from src.simulator.media_env import media_env
+            scale_factor = float(plan.parameters.get("scale_factor", 2.0))
+            res = media_env.scale_transcoder_pool(scale_factor=scale_factor)
+            status = "EXECUTED" if res.get("status") == "COMPLETED" else "FAILED"
+            return RemediationExecutionResult(
+                incident_id=plan.incident_id,
+                action_type=plan.action_type,
+                status=status,
+                details=res,
+                executed_at=now
+            )
         else:
             return RemediationExecutionResult(
                 incident_id=plan.incident_id,
@@ -85,3 +97,33 @@ class RemediationAgent(BaseAgent):
                 details={"error": f"Unsupported or disallowed action type: {plan.action_type}"},
                 executed_at=now
             )
+
+    async def execute_preventive_action(
+        self,
+        action_type: str,
+        target_service: str = "transcoder-pool",
+        parameters: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """
+        Executes an approved preventive action (e.g. scale_transcoder_pool).
+        """
+        now = time.time()
+        params = parameters or {}
+        if action_type in ["scale_transcoder_pool", "SCALE_TRANSCODER_POOL", "SCALE_REPLICAS"]:
+            from src.simulator.media_env import media_env
+            scale_factor = float(params.get("scale_factor", 2.0))
+            res = media_env.scale_transcoder_pool(scale_factor=scale_factor)
+            return {
+                "action_type": action_type,
+                "status": "COMPLETED" if res.get("status") == "COMPLETED" else "FAILED",
+                "details": res,
+                "executed_at": now,
+            }
+        else:
+            return {
+                "action_type": action_type,
+                "status": "FAILED",
+                "details": {"error": f"Disallowed or unsupported preventive action: {action_type}"},
+                "executed_at": now,
+            }
+

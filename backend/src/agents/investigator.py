@@ -149,4 +149,6 @@ class ObservabilityInvestigatorAgent(BaseAgent):
         )
         # Ensure observations from live MCP calls are preserved in final report
         report.observations = observations
+        if is_degraded and report.hypotheses:
+            report.hypotheses[0].recommended_action = "TRAFFIC_SHIFT"
         return report

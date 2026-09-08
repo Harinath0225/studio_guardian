@@ -1,8 +1,8 @@
-from typing import Dict, Any
+from typing import Dict, Any, Tuple
 from enum import Enum
 from pydantic import BaseModel, Field
 from src.config import settings
-from src.policy.rules import ALLOWLISTED_ACTIONS, FORBIDDEN_ACTIONS
+from src.policy.rules import ALLOWLISTED_ACTIONS, FORBIDDEN_ACTIONS, PREDICTIVE_ALLOWLISTED_ACTIONS
 from src.agents.schemas import RemediationPlan
 
 class SafetyDecision(str, Enum):
@@ -22,7 +22,7 @@ class SafetyDirector:
     """
     Deterministic Safety Policy Engine.
     Constitution Principles:
-    - Blast radius > 25% requires human approval.
+    - Blast radius > 25% requires human approval (reactive) / > 20% (predictive).
     - Diagnostic confidence < 0.85 requires human approval.
     - Actions outside allowlist are strictly REJECTED.
     - Disallowed/destructive actions are strictly REJECTED.
@@ -30,6 +30,9 @@ class SafetyDirector:
     def __init__(self):
         self.max_blast_radius = settings.AUTO_EXECUTE_MAX_BLAST_RADIUS_PCT
         self.min_confidence = settings.AUTO_EXECUTE_MIN_CONFIDENCE
+        self.predictive_max_blast_radius = settings.PREDICTIVE_BLAST_RADIUS_MAX_AUTO_PREVENT
+        self.predictive_min_confidence = settings.PREDICTIVE_CONFIDENCE_THRESHOLD_AUTO_PREVENT
+        self.predictive_min_risk = settings.PREDICTIVE_RISK_THRESHOLD_AUTO_PREVENT
 
     def evaluate(self, plan: RemediationPlan, diagnostic_confidence: float) -> PolicyEvaluationResult:
         action = plan.action_type
@@ -78,4 +81,54 @@ class SafetyDirector:
             action_type=action
         )
 
+    def evaluate_predictive_proposal(
+        self,
+        action_type: str,
+        target_service: str,
+        blast_radius_pct: float,
+        risk_score: float,
+        confidence_score: float,
+    ) -> Tuple[SafetyDecision, bool, str]:
+        """
+        Evaluates a predictive prevention proposal against deterministic safety rules:
+        - Must be in PREDICTIVE_ALLOWLISTED_ACTIONS
+        - Risk score must reach PREDICTIVE_RISK_THRESHOLD_AUTO_PREVENT (>= 0.80)
+        - Blast radius <= 20.0%
+        - Confidence >= 0.85
+        """
+        if action_type not in PREDICTIVE_ALLOWLISTED_ACTIONS:
+            return (
+                SafetyDecision.REJECTED,
+                False,
+                f"Action '{action_type}' is not on the permitted predictive prevention allowlist."
+            )
+
+        if risk_score < self.predictive_min_risk:
+            return (
+                SafetyDecision.HUMAN_APPROVAL_REQUIRED,
+                True,
+                f"Risk score ({risk_score:.2f}) is below autonomous threshold ({self.predictive_min_risk:.2f}); action requires review."
+            )
+
+        if blast_radius_pct > self.predictive_max_blast_radius:
+            return (
+                SafetyDecision.HUMAN_APPROVAL_REQUIRED,
+                True,
+                f"Estimated blast radius ({blast_radius_pct:.1f}%) exceeds predictive autonomous threshold of {self.predictive_max_blast_radius:.1f}%."
+            )
+
+        if confidence_score < self.predictive_min_confidence:
+            return (
+                SafetyDecision.HUMAN_APPROVAL_REQUIRED,
+                True,
+                f"Prediction confidence ({confidence_score:.2f}) is below autonomous execution threshold of {self.predictive_min_confidence:.2f}."
+            )
+
+        return (
+            SafetyDecision.AUTO_EXECUTE,
+            True,
+            "Action conforms to autonomous criteria: allowlisted, risk >= 0.80, blast radius <= 20%, confidence >= 0.85."
+        )
+
 safety_director = SafetyDirector()
+
