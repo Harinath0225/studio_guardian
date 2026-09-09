@@ -16,5 +16,6 @@ pytest-mock>=3.14.0
 python-dotenv>=1.0.1
 prometheus-client>=0.20.0
 google-cloud-secret-manager>=2.20.0
-google-cloud-aiplatform>=2.1.0
+google-cloud-aiplatform[agent_engines]>=2.1.0
+cloudpickle>=3.0.0
 

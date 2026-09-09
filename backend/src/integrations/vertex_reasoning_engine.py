@@ -235,6 +235,11 @@ def deploy_reasoning_engine(
         model="gemini-2.5-flash"
     )
 
+    import cloudpickle
+    module_name = StudioGuardianReasoningEngine.__module__
+    if module_name in sys.modules:
+        cloudpickle.register_pickle_by_value(sys.modules[module_name])
+
     print("--> Packaging and creating Vertex AI Reasoning Engine resource on Google Cloud...")
     remote_engine = reasoning_engines.ReasoningEngine.create(
         engine_instance,

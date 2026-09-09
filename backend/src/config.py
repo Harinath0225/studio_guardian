@@ -77,7 +77,7 @@ class Settings(BaseSettings):
             from src.integrations.secret_manager import resolve_secret
             project = self.GOOGLE_CLOUD_PROJECT or "avian-augury-411109"
             if not self.GEMINI_API_KEY or self.GEMINI_API_KEY == "mock-dev-key":
-                self.GEMINI_API_KEY = resolve_secret("GEMINI_API_KEY", self.GEMINI_API_KEY, project)
+                self.GEMINI_API_KEY = resolve_secret("GEMINI_API_KEY", "", project) or resolve_secret("gemini-api-key", self.GEMINI_API_KEY, project)
             if not self.GRAFANA_LOKI_TOKEN:
                 self.GRAFANA_LOKI_TOKEN = resolve_secret("GRAFANA_LOKI_TOKEN", self.GRAFANA_LOKI_TOKEN, project)
             if not self.GRAFANA_SERVICE_ACCOUNT_TOKEN:

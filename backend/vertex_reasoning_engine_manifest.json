@@ -1,0 +1,9 @@
+{
+  "status": "DEPLOYED",
+  "resource_name": "projects/1025006085436/locations/us-central1/reasoningEngines/6820294266594525184",
+  "project": "avian-augury-411109",
+  "location": "us-central1",
+  "display_name": "Studio Guardian Autonomous Incident Director",
+  "deployed_at": "2026-09-09 09:45:56Z",
+  "console_url": "https://console.cloud.google.com/vertex-ai/reasoning-engines?project=avian-augury-411109"
+}
