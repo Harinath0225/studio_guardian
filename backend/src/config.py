@@ -31,7 +31,7 @@ class Settings(BaseSettings):
         return [str(v)]
 
     # Google Cloud & Gemini
-    GOOGLE_CLOUD_PROJECT: str = "studio-guardian-demo"
+    GOOGLE_CLOUD_PROJECT: str = "avian-augury-411109"
     GOOGLE_CLOUD_LOCATION: str = "us-central1"
     GOOGLE_GENAI_USE_VERTEXAI: bool = False
     GEMINI_API_KEY: str = "mock-dev-key"
@@ -69,6 +69,22 @@ class Settings(BaseSettings):
     PREDICTIVE_BLAST_RADIUS_MAX_AUTO_PREVENT: float = 20.0
     PREDICTIVE_VERIFICATION_TIMEOUT_SECONDS: int = 90
 
+    def load_secrets_from_gcp(self):
+        """
+        Dynamically loads secrets from Google Cloud Secret Manager if not already set via environment.
+        """
+        try:
+            from src.integrations.secret_manager import resolve_secret
+            project = self.GOOGLE_CLOUD_PROJECT or "avian-augury-411109"
+            if not self.GEMINI_API_KEY or self.GEMINI_API_KEY == "mock-dev-key":
+                self.GEMINI_API_KEY = resolve_secret("GEMINI_API_KEY", self.GEMINI_API_KEY, project)
+            if not self.GRAFANA_LOKI_TOKEN:
+                self.GRAFANA_LOKI_TOKEN = resolve_secret("GRAFANA_LOKI_TOKEN", self.GRAFANA_LOKI_TOKEN, project)
+            if not self.GRAFANA_SERVICE_ACCOUNT_TOKEN:
+                self.GRAFANA_SERVICE_ACCOUNT_TOKEN = resolve_secret("GRAFANA_SERVICE_ACCOUNT_TOKEN", self.GRAFANA_SERVICE_ACCOUNT_TOKEN, project)
+        except Exception:
+            pass
+
     model_config = SettingsConfigDict(
         env_file=(".env", "../.env"),
         env_file_encoding="utf-8",
@@ -76,3 +92,5 @@ class Settings(BaseSettings):
     )
 
 settings = Settings()
+settings.load_secrets_from_gcp()
+

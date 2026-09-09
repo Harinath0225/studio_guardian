@@ -1,4 +1,4 @@
-﻿# ==============================================================================
+# ==============================================================================
 # Studio Guardian - Unified Multi-Stage Production Dockerfile for Cloud Run
 # Google Cloud & Grafana Labs Hackathon
 # ==============================================================================
@@ -20,10 +20,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 RUN pip install --no-cache-dir uv
-COPY backend/pyproject.toml .
+COPY backend/requirements.txt .
 RUN uv venv /opt/venv && \
     . /opt/venv/bin/activate && \
-    uv pip install --no-cache -r pyproject.toml
+    uv pip install --no-cache -r requirements.txt
 
 # Stage 3: Unified production runtime for Cloud Run
 FROM python:3.12-slim AS runner
