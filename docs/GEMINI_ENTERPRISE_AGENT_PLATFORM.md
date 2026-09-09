@@ -2,7 +2,7 @@
 
 > **Hackathon Track**: Build your agentic workflow on Google Cloud using the Gemini Enterprise Agent Platform  
 > **Target Project**: `avian-augury-411109`  
-> **Models**: Gemini 2.5 Flash / Gemini 2.5 Pro via Vertex AI  
+> **Models**: Gemini 3.6 Flash / Gemini 3.6 Pro via Vertex AI  
 > **Observability Stack**: Model Context Protocol (MCP) + Grafana Cloud Loki
 
 ---
@@ -31,7 +31,7 @@ flowchart TD
             IC --> SafetyDir
         end
 
-        GeminiModel["Gemini 2.5 Flash / Pro\n(Native Structured Outputs & Reasoning)"]
+        GeminiModel["Gemini 3.6 Flash / Pro\n(Native Structured Outputs & Reasoning)"]
         ReasoningEngine <--> GeminiModel
     end
 

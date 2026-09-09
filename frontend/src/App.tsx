@@ -42,7 +42,7 @@ const DEFAULT_PREDICTIVE_STATUS: PredictiveStatus = {
   failure_hypothesis: 'All leading operational signals across transcoders, queues, and regional proxies remain well within designated SLO bounds.',
   reasoning_summary: 'Continuous Grafana MCP sweep detects stable streaming pipelines.',
   runtime_metadata: {
-    agent_engine: 'Vertex AI (gemini-2.5-flash)',
+    agent_engine: 'Vertex AI (gemini-3.6-flash)',
     active_agent: 'Predictive Risk Agent',
     session_id: 'session-pred-init',
     telemetry_source: 'LIVE_GRAFANA_MCP',

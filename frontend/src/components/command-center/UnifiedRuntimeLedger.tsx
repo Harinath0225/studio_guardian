@@ -33,7 +33,7 @@ const DEFAULT_TRACES: AgentRuntimeTrace[] = [
     timestamp: Date.now() - 38000,
     runtime_origin: 'Vertex AI Agent Engine',
     tool_name: 'PredictiveRiskAgent.execute_structured',
-    query: 'Operational Telemetry Risk Assessment (gemini-2.5-flash)',
+    query: 'Operational Telemetry Risk Assessment (gemini-3.6-flash)',
     duration_ms: 340.2,
     status: 'SUCCESS',
     sanitized_payload: {

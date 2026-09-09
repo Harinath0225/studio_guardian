@@ -30,7 +30,7 @@ class PreventionProposalResponse(BaseModel):
 
 
 class RuntimeMetadata(BaseModel):
-    agent_engine: str = "Vertex AI (gemini-2.5-flash)"
+    agent_engine: str = "Vertex AI (gemini-3.6-flash)"
     agent_runtime: str = "Vertex AI Agent Engine"
     active_agent: str = "Predictive Risk Agent"
     current_specialist: str = "Predictive Risk Agent"

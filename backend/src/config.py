@@ -35,7 +35,7 @@ class Settings(BaseSettings):
     GOOGLE_CLOUD_LOCATION: str = "us-central1"
     GOOGLE_GENAI_USE_VERTEXAI: bool = False
     GEMINI_API_KEY: str = "mock-dev-key"
-    GEMINI_MODEL: str = "gemini-2.5-flash"
+    GEMINI_MODEL: str = "gemini-3.6-flash"
 
     # Grafana MCP Integration
     GRAFANA_URL: str = "http://localhost:3000"

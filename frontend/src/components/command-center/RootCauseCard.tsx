@@ -15,7 +15,7 @@ export const RootCauseCard: React.FC<RootCauseCardProps> = ({
 }) => {
   if (!isDegraded) {
     return (
-      <GlassCard title="Root Cause Analysis • Gemini 2.5 Multi-Signal">
+      <GlassCard title="Root Cause Analysis • Gemini 3.6 Multi-Signal">
         <div className="flex items-center gap-3 py-4 text-emerald-400">
           <CheckCircle2 className="h-6 w-6" />
           <div>
@@ -30,7 +30,7 @@ export const RootCauseCard: React.FC<RootCauseCardProps> = ({
   }
 
   return (
-    <GlassCard variant="danger" title="Diagnosed Root Cause • Gemini 2.5 Multi-Signal">
+    <GlassCard variant="danger" title="Diagnosed Root Cause • Gemini 3.6 Multi-Signal">
       <div className="space-y-3">
         <div className="flex items-start gap-2.5">
           <AlertOctagon className="h-5 w-5 text-red-400 mt-0.5 shrink-0" />

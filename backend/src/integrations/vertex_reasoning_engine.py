@@ -32,7 +32,7 @@ class StudioGuardianReasoningEngine:
         self,
         project: str = "avian-augury-411109",
         location: str = "us-central1",
-        model: str = "gemini-2.5-flash",
+        model: str = "gemini-3.6-flash",
     ):
         self.project = project
         self.location = location
@@ -84,7 +84,7 @@ class StudioGuardianReasoningEngine:
                 target_service="transcoder-us-01"
             )
 
-        # General operational reasoning via Gemini 2.5
+        # General operational reasoning via Gemini 3.6 Flash
         from google.genai import types
         config = types.GenerateContentConfig(
             temperature=0.2,
@@ -232,7 +232,7 @@ def deploy_reasoning_engine(
     engine_instance = StudioGuardianReasoningEngine(
         project=project_id,
         location=location,
-        model="gemini-2.5-flash"
+        model="gemini-3.6-flash"
     )
 
     import cloudpickle

@@ -7,7 +7,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.111%2B-green.svg)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-18-blue.svg)](https://react.dev/)
 [![Three.js](https://img.shields.io/badge/Three.js-R3F-purple.svg)](https://docs.pmnd.rs/react-three-fiber)
-[![Gemini](https://img.shields.io/badge/Gemini_2.5-Google_Cloud-orange.svg)](https://cloud.google.com/vertex-ai)
+[![Gemini](https://img.shields.io/badge/Gemini_3.6_Flash-Google_Cloud-orange.svg)](https://cloud.google.com/vertex-ai)
 [![Grafana](https://img.shields.io/badge/Grafana-MCP-F46800.svg)](https://grafana.com/)
 
 ---
@@ -78,7 +78,7 @@ DATABASE_URL_SYNC=sqlite:///./studio_guardian.db
 # Google Cloud / Gemini
 GOOGLE_CLOUD_PROJECT=your-project-id
 GOOGLE_GENAI_USE_VERTEXAI=true
-GEMINI_MODEL=gemini-2.5-flash
+GEMINI_MODEL=gemini-3.6-flash
 
 # Grafana MCP & Cloud Integration
 GRAFANA_URL=https://whitepenguin2589.grafana.net

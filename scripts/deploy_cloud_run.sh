@@ -54,7 +54,7 @@ gcloud run deploy "${SERVICE_NAME}" \
     --platform="managed" \
     --allow-unauthenticated \
     ${SECRETS_FLAG} \
-    --set-env-vars="GOOGLE_CLOUD_PROJECT=${PROJECT_ID},GOOGLE_GENAI_USE_VERTEXAI=true,GEMINI_MODEL=gemini-2.5-flash" \
+    --set-env-vars="GOOGLE_CLOUD_PROJECT=${PROJECT_ID},GOOGLE_GENAI_USE_VERTEXAI=true,GEMINI_MODEL=gemini-3.6-flash" \
     --project="${PROJECT_ID}"
 
 # 4. Retrieve and display public HTTPS live URL
