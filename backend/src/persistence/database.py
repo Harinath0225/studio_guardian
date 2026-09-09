@@ -71,10 +71,12 @@ def _choose_db_url() -> str:
 
 _effective_url = _choose_db_url()
 
+from sqlalchemy import text
+
 _engine_kwargs: dict = dict(echo=False, future=True, pool_pre_ping=True)
 if "sqlite" in _effective_url:
     # SQLite doesn't support connection pools the same way
-    _engine_kwargs["connect_args"] = {"check_same_thread": False}
+    _engine_kwargs["connect_args"] = {"check_same_thread": False, "timeout": 15.0}
 
 engine = create_async_engine(_effective_url, **_engine_kwargs)
 
@@ -97,5 +99,8 @@ async def get_db():
 async def init_db():
     import src.persistence.models  # Ensure all model classes are imported & registered
     async with engine.begin() as conn:
+        if "sqlite" in _effective_url:
+            await conn.execute(text("PRAGMA journal_mode=WAL;"))
+            await conn.execute(text("PRAGMA busy_timeout=15000;"))
         await conn.run_sync(Base.metadata.create_all)
     logger.info("Database tables initialised (engine: %s)", _effective_url.split("@")[-1] if "@" in _effective_url else _effective_url)

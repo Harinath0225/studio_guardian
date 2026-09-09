@@ -38,6 +38,10 @@ async def stream_events(request: Request):
                         if live_logs:
                             log_msg = {"type": "LOKI_LOG_BATCH", "data": live_logs}
                             yield f"data: {json.dumps(log_msg)}\n\n"
+                            
+                            # Asynchronously ship to Grafana Cloud Loki in background
+                            from src.simulator.loki_shipper import loki_shipper
+                            asyncio.create_task(loki_shipper.push_logs(live_logs))
                     except Exception:
                         pass
         except asyncio.CancelledError:

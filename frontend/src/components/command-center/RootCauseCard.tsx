@@ -19,8 +19,10 @@ export const RootCauseCard: React.FC<RootCauseCardProps> = ({
         <div className="flex items-center gap-3 py-4 text-emerald-400">
           <CheckCircle2 className="h-6 w-6" />
           <div>
-            <h4 className="text-sm font-semibold font-mono text-gray-200">All Live Broadcast Signals Nominal</h4>
-            <p className="text-xs text-gray-400 mt-0.5">Observability Investigator continuously polling Grafana MCP datasources across {activeCluster}.</p>
+            <h4 className="text-sm font-semibold font-mono text-slate-200">All Live Broadcast Signals Nominal</h4>
+            <p className="text-sm text-slate-400 font-sans leading-relaxed mt-0.5 max-w-[70ch]">
+              Observability Investigator continuously polling Grafana MCP datasources across {activeCluster}.
+            </p>
           </div>
         </div>
       </GlassCard>
@@ -36,7 +38,7 @@ export const RootCauseCard: React.FC<RootCauseCardProps> = ({
             <h4 className="text-sm font-bold font-mono text-red-300">
               Memory Corruption / SIGSEGV in transcoder-syd-01
             </h4>
-            <p className="text-xs text-gray-300 mt-1">
+            <p className="text-sm text-slate-300 font-sans leading-relaxed mt-1 max-w-[70ch]">
               Correlated Loki stacktraces with Tempo latency spikes following recent deployment <span className="font-mono text-cyan-300 font-semibold">{recentDeployment || 'v4.2.1-transcoder-patch'}</span>.
             </p>
           </div>

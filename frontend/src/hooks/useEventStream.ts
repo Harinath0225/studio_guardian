@@ -29,7 +29,7 @@ export interface StateTransitionEvent {
   timestamp: number;
 }
 
-export const useEventStream = (streamUrl: string = 'http://localhost:8000/api/v1/stream/events') => {
+export const useEventStream = (streamUrl: string = '/api/v1/stream/events') => {
   const [telemetry, setTelemetry] = useState<TelemetryData>({
     event_title: 'India vs Australia Final',
     status: 'HEALTHY',

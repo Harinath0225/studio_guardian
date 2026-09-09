@@ -37,7 +37,7 @@ export const PredictiveMemoryCard: React.FC = () => {
   const [memories, setMemories] = useState<PriorIntervention[]>(DEFAULT_MEMORIES);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/v1/prediction/memory')
+    fetch('/api/v1/prediction/memory')
       .then((res) => (res.ok ? res.json() : DEFAULT_MEMORIES))
       .then((data) => setMemories(data))
       .catch(() => setMemories(DEFAULT_MEMORIES));
@@ -46,9 +46,9 @@ export const PredictiveMemoryCard: React.FC = () => {
   return (
     <GlassCard title="Vertex AI Memory • Historical Fingerprint Matches">
       <div className="space-y-3">
-        <div className="flex items-center justify-between text-[11px] text-gray-400 font-mono pb-1 border-b border-white/5">
+        <div className="flex items-center justify-between text-[11px] text-slate-400 font-mono pb-1 border-b border-white/5">
           <span className="flex items-center gap-1.5">
-            <History className="h-3 w-3 text-cyan-400" />
+            <History className="h-3.5 w-3.5 text-cyan-400" />
             Matching Prior Interventions
           </span>
           <span>Similarity</span>
@@ -58,31 +58,31 @@ export const PredictiveMemoryCard: React.FC = () => {
           {memories.map((m) => (
             <div
               key={m.id}
-              className="p-3 rounded-lg bg-black/40 border border-white/5 space-y-1.5 font-mono text-xs"
+              className="p-3.5 rounded-xl bg-black/40 border border-white/5 space-y-2 font-mono text-xs"
             >
               <div className="flex items-center justify-between">
-                <span className="font-bold text-gray-200 truncate">{m.event_context}</span>
-                <span className="text-cyan-300 font-bold px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/30 text-[10px]">
+                <span className="font-bold text-slate-100 truncate">{m.event_context}</span>
+                <span className="text-cyan-300 font-bold px-2 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-[10px]">
                   {Math.round(m.match_score * 100)}% Match
                 </span>
               </div>
 
-              <div className="text-[11px] text-gray-400">
-                Mode: <span className="text-amber-300">{m.diagnosed_mode}</span>
+              <div className="text-xs text-slate-400">
+                Mode: <span className="text-amber-300 font-medium">{m.diagnosed_mode}</span>
               </div>
 
-              <div className="text-[11px] text-gray-300">
+              <div className="text-xs text-slate-300">
                 Proven Action: <span className="text-emerald-400 font-semibold">{m.remediation_applied}</span>
               </div>
 
-              <p className="text-[11px] text-gray-400 font-sans leading-relaxed pt-1 border-t border-white/5">
+              <p className="text-xs text-slate-300 font-sans leading-relaxed pt-1 border-t border-white/5 max-w-[70ch]">
                 {m.outcome_summary}
               </p>
 
-              <div className="flex justify-between items-center text-[10px] text-gray-500 pt-1">
-                <span>Avoided Loss: ${m.avoided_exposure_usd?.toLocaleString()}</span>
+              <div className="flex justify-between items-center text-[11px] text-slate-400 pt-1">
+                <span>Avoided Loss: <strong className="text-emerald-400">${m.avoided_exposure_usd?.toLocaleString()}</strong></span>
                 <span className="flex items-center gap-1 text-emerald-400">
-                  <CheckCircle2 className="h-3 w-3" /> Zero degradation
+                  <CheckCircle2 className="h-3.5 w-3.5" /> Zero degradation
                 </span>
               </div>
             </div>

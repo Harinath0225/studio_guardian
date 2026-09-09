@@ -3,10 +3,10 @@ import { Header } from './components/command-center/Header';
 import { SystemTopology3D } from './components/canvas3d/SystemTopology3D';
 import { TelemetryGrid } from './components/command-center/TelemetryGrid';
 import { AutonomyDial } from './components/command-center/AutonomyDial';
-import { SimulatorBar } from './components/simulator/SimulatorBar';
 import { ReportDrawer } from './components/command-center/ReportDrawer';
 import { SafetyModal } from './components/command-center/SafetyModal';
 import { DegradedBanner } from './components/common/DegradedBanner';
+import { LifecycleProgress } from './components/common/LifecycleProgress';
 import { PredictView } from './components/command-center/PredictView';
 import { ProtectView } from './components/command-center/ProtectView';
 import { RespondView } from './components/command-center/RespondView';
@@ -97,7 +97,7 @@ export function App() {
   const handleTriggerIncident = async () => {
     setActionLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/api/v1/demo/incident', {
+      const res = await fetch('/api/v1/demo/incident', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ scenario: 'india_vs_australia_final' })
@@ -119,7 +119,7 @@ export function App() {
   const handleReset = async () => {
     setActionLoading(true);
     try {
-      await fetch('http://localhost:8000/api/v1/demo/reset', { method: 'POST' });
+      await fetch('/api/v1/demo/reset', { method: 'POST' });
       const fresh = await evaluateOperationalRisk(true);
       setPredStatus(fresh);
       setDashboardMode('PREDICTIVE');
@@ -133,7 +133,7 @@ export function App() {
   const handleForceFailure = async () => {
     setActionLoading(true);
     try {
-      await fetch('http://localhost:8000/api/v1/demo/force-failure?enable=true', { method: 'POST' });
+      await fetch('/api/v1/demo/force-failure?enable=true', { method: 'POST' });
     } catch (e) {
       console.error('Force failure error:', e);
     } finally {
@@ -143,7 +143,7 @@ export function App() {
 
   const handleEmergencyTakeover = async () => {
     try {
-      await fetch('http://localhost:8000/api/v1/incidents/emergency-takeover', { method: 'POST' });
+      await fetch('/api/v1/incidents/emergency-takeover', { method: 'POST' });
     } catch (e) {
       console.error('Emergency takeover error:', e);
     }
@@ -152,7 +152,7 @@ export function App() {
   const handleShiftRoute = async (cluster: string = 'transcoder-us-01') => {
     setActionLoading(true);
     try {
-      await fetch('http://localhost:8000/api/v1/simulator/route', {
+      await fetch('/api/v1/simulator/route', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ target_cluster: cluster, shift_pct: 100.0 })
@@ -166,7 +166,7 @@ export function App() {
 
   const handleApprove = async (id: string, notes?: string) => {
     try {
-      await fetch(`http://localhost:8000/api/v1/incidents/${id}/approve`, {
+      await fetch(`/api/v1/incidents/${id}/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ approved: true, operator_notes: notes || 'Operator approved in Command Center' })
@@ -180,7 +180,7 @@ export function App() {
 
   const handleReject = async (id: string, notes?: string) => {
     try {
-      await fetch(`http://localhost:8000/api/v1/incidents/${id}/approve`, {
+      await fetch(`/api/v1/incidents/${id}/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ approved: false, operator_notes: notes || 'Operator rejected in Command Center' })
@@ -256,7 +256,7 @@ export function App() {
       />
 
       {/* Main Dashboard Layout */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6 sm:space-y-7">
         {/* Top Section: 3D Spatial Mesh Core with Predictive Stress Visualization */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1">
@@ -279,58 +279,61 @@ export function App() {
           </div>
         </div>
 
-        {/* Four Operational Views Tab Navigation (Constitution 16, Plan §10) */}
-        <div className="flex border-b border-slate-800 space-x-2 pt-2">
+        {/* Autonomous Response Lifecycle Sequence Indicator */}
+        <LifecycleProgress activeWorkflowState={activeWorkflowState || telemetry.status} />
+
+        {/* Operational Views Tab Navigation */}
+        <div className="flex border-b border-slate-800 space-x-2 pt-1 overflow-x-auto scrollbar-none">
           <button
             onClick={() => setCurrentView('PREDICT')}
-            className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-t-lg transition border-t border-x ${
+            className={`px-4 py-2.5 text-xs font-mono font-bold uppercase tracking-wider rounded-t-xl transition-all border-t border-x ${
               currentView === 'PREDICT'
-                ? 'bg-slate-900 text-cyan-400 border-slate-700'
-                : 'text-slate-400 border-transparent hover:text-slate-200'
+                ? 'bg-slate-900 text-cyan-300 border-slate-700 shadow-sm'
+                : 'text-slate-400 border-transparent hover:text-slate-200 hover:bg-slate-900/40'
             }`}
           >
-            1. PREDICT (Risk &amp; Telemetry)
+            PREDICT (Risk &amp; Telemetry)
           </button>
           <button
             onClick={() => setCurrentView('PROTECT')}
-            className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-t-lg transition border-t border-x ${
+            className={`px-4 py-2.5 text-xs font-mono font-bold uppercase tracking-wider rounded-t-xl transition-all border-t border-x ${
               currentView === 'PROTECT'
-                ? 'bg-slate-900 text-emerald-400 border-slate-700'
-                : 'text-slate-400 border-transparent hover:text-slate-200'
+                ? 'bg-slate-900 text-emerald-400 border-slate-700 shadow-sm'
+                : 'text-slate-400 border-transparent hover:text-slate-200 hover:bg-slate-900/40'
             }`}
           >
-            2. PROTECT (Policy &amp; Scaling)
+            PROTECT (Policy &amp; Scaling)
           </button>
           <button
             onClick={() => setCurrentView('RESPOND')}
-            className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-t-lg transition border-t border-x ${
+            className={`px-4 py-2.5 text-xs font-mono font-bold uppercase tracking-wider rounded-t-xl transition-all border-t border-x ${
               currentView === 'RESPOND'
-                ? 'bg-slate-900 text-amber-400 border-slate-700'
-                : 'text-slate-400 border-transparent hover:text-slate-200'
+                ? 'bg-slate-900 text-amber-400 border-slate-700 shadow-sm'
+                : 'text-slate-400 border-transparent hover:text-slate-200 hover:bg-slate-900/40'
             }`}
           >
-            3. RESPOND (Incident Fallback)
+            RESPOND (Incident Fallback)
           </button>
           <button
             onClick={() => setCurrentView('GAME_DAY')}
-            className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-t-lg transition border-t border-x ${
+            className={`px-4 py-2.5 text-xs font-mono font-bold uppercase tracking-wider rounded-t-xl transition-all border-t border-x ${
               currentView === 'GAME_DAY'
-                ? 'bg-slate-900 text-red-400 border-slate-700'
-                : 'text-slate-400 border-transparent hover:text-slate-200'
+                ? 'bg-slate-900 text-red-400 border-slate-700 shadow-sm'
+                : 'text-slate-400 border-transparent hover:text-slate-200 hover:bg-slate-900/40'
             }`}
           >
-            4. GAME DAY (Black Swan Chaos)
+            GAME DAY (Chaos Drills)
           </button>
           <button
             onClick={() => setCurrentView('GRAFANA_STREAM')}
-            className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-t-lg transition border-t border-x flex items-center gap-1.5 ${
+            className={`px-4 py-2.5 text-xs font-mono font-bold uppercase tracking-wider rounded-t-xl transition-all border-t border-x flex items-center gap-1.5 ${
               currentView === 'GRAFANA_STREAM'
-                ? 'bg-slate-900 text-orange-400 border-slate-700'
-                : 'text-slate-400 border-transparent hover:text-slate-200'
+                ? 'bg-slate-900 text-orange-400 border-slate-700 shadow-sm'
+                : 'text-slate-400 border-transparent hover:text-slate-200 hover:bg-slate-900/40'
             }`}
           >
             <Flame className="w-3.5 h-3.5 text-orange-400" />
-            5. GRAFANA LIVE (Observability &amp; Logs)
+            GRAFANA LIVE (Stream &amp; Logs)
           </button>
         </div>
 
@@ -376,7 +379,7 @@ export function App() {
       </main>
 
       {/* Footer connection status */}
-      <footer className="border-t border-white/5 px-6 py-4 text-xs font-mono text-gray-500 flex flex-wrap justify-between items-center max-w-7xl mx-auto w-full gap-4 pb-20">
+      <footer className="border-t border-white/5 px-6 py-4 text-xs font-mono text-gray-500 flex flex-wrap justify-between items-center max-w-7xl mx-auto w-full gap-4">
         <div className="flex items-center gap-4">
           <span>Google Cloud &amp; Grafana Labs Hackathon • Studio Guardian v1.0.0</span>
           <button
@@ -391,15 +394,6 @@ export function App() {
           {isConnected ? 'SSE Live Stream Active (1 Hz)' : 'Reconnecting to SSE Stream...'}
         </span>
       </footer>
-
-      {/* Sticky Floating Demo Simulator Bar */}
-      <SimulatorBar
-        onTriggerIncident={handleTriggerIncident}
-        onReset={handleReset}
-        onForceFailure={handleForceFailure}
-        isDegraded={isDegraded}
-        actionLoading={actionLoading}
-      />
 
       {/* Post-Incident Report Drawer */}
       <ReportDrawer

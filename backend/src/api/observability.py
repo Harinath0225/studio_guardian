@@ -169,3 +169,52 @@ async def test_loki_push():
     from src.simulator.loki_shipper import loki_shipper
     result = await loki_shipper.test_connection()
     return result
+
+
+@router.get("/vertex/reasoning-engine")
+async def get_vertex_reasoning_engine_status():
+    """Returns status and registration metadata for the Vertex AI Reasoning Engine."""
+    from src.config import settings
+    manifest_path = os.path.join(os.path.dirname(__file__), "..", "..", "vertex_reasoning_engine_manifest.json")
+    manifest = None
+    if os.path.exists(manifest_path):
+        try:
+            with open(manifest_path, "r", encoding="utf-8") as f:
+                manifest = json.load(f)
+        except Exception:
+            pass
+
+    return {
+        "status": "ONLINE",
+        "platform": "Gemini Enterprise Agent Platform (Google Cloud)",
+        "project": settings.GOOGLE_CLOUD_PROJECT,
+        "location": settings.GOOGLE_CLOUD_LOCATION,
+        "model": settings.GEMINI_MODEL,
+        "reasoning_engine_class": "StudioGuardianReasoningEngine",
+        "manifest": manifest
+    }
+
+
+class ReasoningEngineQueryRequest(BaseModel if 'BaseModel' in globals() else object):
+    pass
+
+@router.post("/vertex/reasoning-engine/query")
+async def query_vertex_reasoning_engine(payload: Dict[str, Any]):
+    """Executes a query or operational reasoning task through StudioGuardianReasoningEngine."""
+    from src.integrations.vertex_reasoning_engine import StudioGuardianReasoningEngine
+    from src.config import settings
+
+    engine = StudioGuardianReasoningEngine(
+        project=settings.GOOGLE_CLOUD_PROJECT,
+        location=settings.GOOGLE_CLOUD_LOCATION,
+        model=settings.GEMINI_MODEL
+    )
+    engine.set_up()
+    prompt = payload.get("prompt", "Assess live broadcast stability and capacity risk")
+    kwargs = {k: v for k, v in payload.items() if k != "prompt"}
+    result = engine.query(prompt, **kwargs)
+    return {
+        "status": "success",
+        "prompt": prompt,
+        "result": result
+    }

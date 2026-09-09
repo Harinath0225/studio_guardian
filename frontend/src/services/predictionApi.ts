@@ -1,6 +1,6 @@
 import { PredictiveStatus, VerificationResult } from '../types/prediction';
 
-const BASE_URL = 'http://localhost:8000/api/v1/prediction';
+const BASE_URL = '/api/v1/prediction';
 
 export async function fetchPredictiveStatus(): Promise<PredictiveStatus> {
   const res = await fetch(`${BASE_URL}/status`);

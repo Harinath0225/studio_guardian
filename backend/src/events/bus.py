@@ -36,4 +36,11 @@ class EventBus:
             except asyncio.QueueFull:
                 logger.warning("Subscriber queue full, discarding message")
 
+        # Forward operational log of agent lifecycle events directly to Grafana Cloud Loki
+        try:
+            from src.simulator.loki_shipper import loki_shipper
+            asyncio.create_task(loki_shipper.push_agent_event(event_type, payload))
+        except Exception:
+            pass
+
 event_bus = EventBus()

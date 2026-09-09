@@ -22,26 +22,26 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
       <div className="grid grid-cols-2 gap-3">
         {/* Disrupted Viewers */}
         <div className="bg-white/5 p-3 rounded-lg border border-white/5">
-          <div className="flex items-center gap-1.5 text-gray-400 text-xs font-mono">
-            <Users className="h-3.5 w-3.5 text-blue-400" />
+          <div className="flex items-center gap-1.5 text-slate-400 text-xs font-mono">
+            <Users className="h-3.5 w-3.5 text-cyan-400" />
             <span>Disrupted Viewers</span>
           </div>
           <div className="mt-1 flex items-baseline gap-1.5">
-            <span className={`text-xl font-bold font-mono ${isDegraded ? 'text-red-400' : 'text-gray-200'}`}>
+            <span className={`text-xl font-bold font-mono ${isDegraded ? 'text-red-400' : 'text-slate-100'}`}>
               {isDegraded ? affectedViewers.toLocaleString() : '0'}
             </span>
-            <span className="text-[10px] text-gray-500 font-mono">of {(totalViewers / 1e6).toFixed(1)}M</span>
+            <span className="text-[10px] text-slate-400 font-mono">of {(totalViewers / 1e6).toFixed(1)}M</span>
           </div>
         </div>
 
         {/* High-Value VIP Audience */}
         <div className="bg-white/5 p-3 rounded-lg border border-white/5">
-          <div className="flex items-center gap-1.5 text-gray-400 text-xs font-mono">
+          <div className="flex items-center gap-1.5 text-slate-400 text-xs font-mono">
             <Crown className="h-3.5 w-3.5 text-amber-400" />
             <span>VIP Subscribers (4K)</span>
           </div>
           <div className="mt-1">
-            <span className={`text-xl font-bold font-mono ${isDegraded ? 'text-amber-400' : 'text-gray-200'}`}>
+            <span className={`text-xl font-bold font-mono ${isDegraded ? 'text-amber-400' : 'text-slate-100'}`}>
               {isDegraded ? vipViewers.toLocaleString() : '0'}
             </span>
           </div>
@@ -49,12 +49,12 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
 
         {/* Ad Revenue Exposure */}
         <div className="bg-white/5 p-3 rounded-lg border border-white/5">
-          <div className="flex items-center gap-1.5 text-gray-400 text-xs font-mono">
+          <div className="flex items-center gap-1.5 text-slate-400 text-xs font-mono">
             <DollarSign className="h-3.5 w-3.5 text-emerald-400" />
             <span>Ad Revenue at Risk</span>
           </div>
           <div className="mt-1">
-            <span className={`text-xl font-bold font-mono ${isDegraded ? 'text-red-400' : 'text-gray-200'}`}>
+            <span className={`text-xl font-bold font-mono ${isDegraded ? 'text-red-400' : 'text-slate-100'}`}>
               ${adRevenueAtRisk.toLocaleString()}
             </span>
           </div>
@@ -62,25 +62,25 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
 
         {/* SLA Exposure */}
         <div className="bg-white/5 p-3 rounded-lg border border-white/5">
-          <div className="flex items-center gap-1.5 text-gray-400 text-xs font-mono">
+          <div className="flex items-center gap-1.5 text-slate-400 text-xs font-mono">
             <AlertCircle className="h-3.5 w-3.5 text-purple-400" />
             <span>SLA Penalty Exposure</span>
           </div>
           <div className="mt-1">
-            <span className={`text-xl font-bold font-mono ${isDegraded ? 'text-red-400' : 'text-gray-200'}`}>
+            <span className={`text-xl font-bold font-mono ${isDegraded ? 'text-red-400' : 'text-slate-100'}`}>
               ${slaLiability.toLocaleString()}
             </span>
           </div>
         </div>
       </div>
 
-      <div className="mt-3 p-2.5 rounded bg-black/30 border border-white/5 text-xs text-gray-300 font-mono">
+      <div className="mt-3 p-3 rounded-lg bg-black/30 border border-white/5 text-sm font-sans leading-relaxed max-w-[70ch]">
         {isDegraded ? (
-          <span className="text-amber-300">
+          <span className="text-amber-300 font-medium">
             URGENCY: IMMEDIATE • P1 broadcast breach in Australia/Singapore region. Immediate traffic diversion to warm-standby cluster recommended.
           </span>
         ) : (
-          <span className="text-gray-400">
+          <span className="text-slate-400">
             Audience experience optimal. Ad burn rates and broadcast contractual SLA metrics normal.
           </span>
         )}

@@ -22,31 +22,55 @@ export const TelemetryGrid: React.FC<TelemetryGridProps> = ({
     { time: 'now', val: playbackErrorRate }
   ];
 
-  const isCritical = playbackErrorRate >= 2.0;
+  // Status checks per metric
+  const getPlaybackStatus = () => {
+    if (playbackErrorRate >= 2.0) return { variant: 'danger' as const, textColor: 'text-red-400', dot: 'bg-red-400 animate-pulse', stroke: '#EF4444', label: 'Breaching SLA (>2.0%)' };
+    if (playbackErrorRate >= 1.0) return { variant: 'warning' as const, textColor: 'text-amber-400', dot: 'bg-amber-400', stroke: '#F59E0B', label: 'Elevated Error Rate' };
+    return { variant: 'default' as const, textColor: 'text-slate-100', dot: 'bg-emerald-400', stroke: '#38BDF8', label: 'SLA Threshold < 2.0%' };
+  };
+
+  const getLatencyStatus = () => {
+    if (transcoderLatency > 100) return { variant: 'danger' as const, textColor: 'text-red-400', dot: 'bg-red-400 animate-pulse', label: 'Severe stall on segment muxing' };
+    if (transcoderLatency > 50) return { variant: 'warning' as const, textColor: 'text-amber-400', dot: 'bg-amber-400', label: 'Latency drift approaching threshold' };
+    return { variant: 'default' as const, textColor: 'text-slate-100', dot: 'bg-emerald-400', label: 'Live encode pipelines nominal (18ms)' };
+  };
+
+  const getGpuStatus = () => {
+    if (gpuAllocationFailure > 1.0) return { variant: 'danger' as const, textColor: 'text-red-400', dot: 'bg-red-400 animate-pulse', label: 'SIGSEGV SEI payload insertion failure' };
+    if (gpuAllocationFailure > 0) return { variant: 'warning' as const, textColor: 'text-amber-400', dot: 'bg-amber-400', label: 'Intermittent allocation retry observed' };
+    return { variant: 'default' as const, textColor: 'text-slate-100', dot: 'bg-emerald-400', label: 'Zero memory leaks detected' };
+  };
+
+  const pbStatus = getPlaybackStatus();
+  const latStatus = getLatencyStatus();
+  const gpuStatus = getGpuStatus();
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       {/* Metric 1: Playback Error Rate */}
-      <GlassCard variant={isCritical ? 'danger' : 'default'} className="p-4">
+      <GlassCard variant={pbStatus.variant}>
         <div className="flex items-center justify-between">
-          <span className="text-xs font-mono text-gray-400 uppercase tracking-wider">Playback Buffer Error</span>
-          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/5 text-gray-400">Prometheus</span>
+          <div className="flex items-center gap-2">
+            <span className={`h-2 w-2 rounded-full ${pbStatus.dot}`} />
+            <span className="text-xs font-mono text-slate-400 uppercase tracking-wider">Playback Buffer</span>
+          </div>
+          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/5 text-slate-400 border border-white/5">Prometheus</span>
         </div>
-        <div className="mt-2 flex items-baseline gap-2">
-          <span className={`text-2xl font-bold font-mono ${isCritical ? 'text-red-400' : 'text-emerald-400'}`}>
+        <div className="mt-2.5 flex items-baseline gap-2">
+          <span className={`text-2xl font-bold font-mono ${pbStatus.textColor}`}>
             {playbackErrorRate.toFixed(2)}%
           </span>
-          <span className="text-xs text-gray-500 font-mono">SLA Threshold &lt; 2.0%</span>
+          <span className="text-xs text-slate-400 font-mono">{pbStatus.label}</span>
         </div>
-        <div className="h-12 w-full mt-2">
+        <div className="h-10 w-full mt-2">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={errorData}>
               <Area
                 type="monotone"
                 dataKey="val"
-                stroke={isCritical ? '#EF4444' : '#10B981'}
-                fill={isCritical ? '#EF4444' : '#10B981'}
-                fillOpacity={0.2}
+                stroke={pbStatus.stroke}
+                fill={pbStatus.stroke}
+                fillOpacity={0.15}
               />
             </AreaChart>
           </ResponsiveContainer>
@@ -54,36 +78,42 @@ export const TelemetryGrid: React.FC<TelemetryGridProps> = ({
       </GlassCard>
 
       {/* Metric 2: Transcoder Latency */}
-      <GlassCard variant={transcoderLatency > 100 ? 'danger' : 'default'} className="p-4">
+      <GlassCard variant={latStatus.variant}>
         <div className="flex items-center justify-between">
-          <span className="text-xs font-mono text-gray-400 uppercase tracking-wider">Transcode Latency</span>
-          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/5 text-gray-400">Tempo</span>
+          <div className="flex items-center gap-2">
+            <span className={`h-2 w-2 rounded-full ${latStatus.dot}`} />
+            <span className="text-xs font-mono text-slate-400 uppercase tracking-wider">Transcode Latency</span>
+          </div>
+          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/5 text-slate-400 border border-white/5">Tempo</span>
         </div>
-        <div className="mt-2 flex items-baseline gap-2">
-          <span className={`text-2xl font-bold font-mono ${transcoderLatency > 100 ? 'text-red-400' : 'text-emerald-400'}`}>
+        <div className="mt-2.5 flex items-baseline gap-2">
+          <span className={`text-2xl font-bold font-mono ${latStatus.textColor}`}>
             {transcoderLatency.toFixed(1)} ms
           </span>
-          <span className="text-xs text-gray-500 font-mono">Nominal: 18ms</span>
+          <span className="text-xs text-slate-400 font-mono">Target: &lt; 35ms</span>
         </div>
-        <p className="text-[11px] text-gray-400 font-mono mt-3">
-          {transcoderLatency > 100 ? 'Severe stall detected on segment muxing' : 'Live encode pipelines nominal'}
+        <p className="text-[11px] text-slate-400 font-mono mt-3 leading-relaxed">
+          {latStatus.label}
         </p>
       </GlassCard>
 
       {/* Metric 3: GPU Allocation Failures */}
-      <GlassCard variant={gpuAllocationFailure > 0 ? 'danger' : 'default'} className="p-4">
+      <GlassCard variant={gpuStatus.variant}>
         <div className="flex items-center justify-between">
-          <span className="text-xs font-mono text-gray-400 uppercase tracking-wider">GPU OOM / Segfault</span>
-          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/5 text-gray-400">Loki</span>
+          <div className="flex items-center gap-2">
+            <span className={`h-2 w-2 rounded-full ${gpuStatus.dot}`} />
+            <span className="text-xs font-mono text-slate-400 uppercase tracking-wider">GPU Allocation</span>
+          </div>
+          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/5 text-slate-400 border border-white/5">Loki</span>
         </div>
-        <div className="mt-2 flex items-baseline gap-2">
-          <span className={`text-2xl font-bold font-mono ${gpuAllocationFailure > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
+        <div className="mt-2.5 flex items-baseline gap-2">
+          <span className={`text-2xl font-bold font-mono ${gpuStatus.textColor}`}>
             {gpuAllocationFailure.toFixed(1)}%
           </span>
-          <span className="text-xs text-gray-500 font-mono">Cluster: ap-south-1</span>
+          <span className="text-xs text-slate-400 font-mono">Cluster: ap-south-1</span>
         </div>
-        <p className="text-[11px] text-gray-400 font-mono mt-3">
-          {gpuAllocationFailure > 0 ? 'SIGSEGV SEI payload insertion failure' : 'Zero memory leaks detected'}
+        <p className="text-[11px] text-slate-400 font-mono mt-3 leading-relaxed">
+          {gpuStatus.label}
         </p>
       </GlassCard>
     </div>

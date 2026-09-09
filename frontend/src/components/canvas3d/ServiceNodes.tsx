@@ -2,11 +2,22 @@ import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
+export interface TopologyNodeInfo {
+  id: string;
+  label: string;
+  region: string;
+  role: string;
+  health: string;
+  statusColor: string;
+  trafficWeight: string;
+}
+
 interface ServiceNodesProps {
   status: string;
   activeWeights: Record<string, number>;
   predictiveState?: string;
   riskScore?: number;
+  onHoverNode?: (info: TopologyNodeInfo | null) => void;
 }
 
 export const ServiceNodes: React.FC<ServiceNodesProps> = ({
@@ -14,6 +25,7 @@ export const ServiceNodes: React.FC<ServiceNodesProps> = ({
   activeWeights,
   predictiveState,
   riskScore = 0,
+  onHoverNode,
 }) => {
   const groupRef = useRef<THREE.Group>(null);
   const pulseRef = useRef<THREE.Mesh>(null);
@@ -65,7 +77,22 @@ export const ServiceNodes: React.FC<ServiceNodesProps> = ({
     <group ref={groupRef}>
       {/* Sydney Transcoder Node */}
       <group position={[2.5, 0.4, 0]}>
-        <mesh ref={pulseRef}>
+        <mesh
+          ref={pulseRef}
+          onPointerOver={(e) => {
+            e.stopPropagation();
+            onHoverNode?.({
+              id: 'transcoder-syd-01',
+              label: 'Primary Transcoder Pool',
+              region: 'ap-southeast-2 (Sydney)',
+              role: 'Live H.265 Transcode & Packaging',
+              health: isSydneyDegraded ? 'Degraded' : isSurge ? 'High Stress' : isPrevented ? 'Scaled 2x' : 'Nominal',
+              statusColor: sydneyColor,
+              trafficWeight: `${Math.round((activeWeights['transcoder-syd-01'] ?? (isSydneyDegraded ? 0 : 1)) * 100)}%`,
+            });
+          }}
+          onPointerOut={() => onHoverNode?.(null)}
+        >
           <sphereGeometry args={[0.26, 24, 24]} />
           <meshStandardMaterial
             color={sydneyColor}
@@ -92,7 +119,21 @@ export const ServiceNodes: React.FC<ServiceNodesProps> = ({
 
       {/* Singapore Node */}
       <group position={[-2.2, 0.8, 1.2]}>
-        <mesh>
+        <mesh
+          onPointerOver={(e) => {
+            e.stopPropagation();
+            onHoverNode?.({
+              id: 'edge-proxy-sin-01',
+              label: 'Regional Edge Gateway',
+              region: 'ap-southeast-1 (Singapore)',
+              role: 'Segment Delivery & Manifest Proxy',
+              health: isNominal ? 'Nominal' : isSurge ? 'Elevated Influx' : 'Nominal',
+              statusColor: singaporeColor,
+              trafficWeight: '100% In-Region',
+            });
+          }}
+          onPointerOut={() => onHoverNode?.(null)}
+        >
           <sphereGeometry args={[0.2, 16, 16]} />
           <meshStandardMaterial
             color={singaporeColor}
@@ -104,7 +145,21 @@ export const ServiceNodes: React.FC<ServiceNodesProps> = ({
 
       {/* US Warm Standby Cluster */}
       <group position={[0.5, -2.0, 1.5]}>
-        <mesh>
+        <mesh
+          onPointerOver={(e) => {
+            e.stopPropagation();
+            onHoverNode?.({
+              id: 'transcoder-us-01',
+              label: 'Warm Standby Cluster',
+              region: 'us-west-2 (Oregon)',
+              role: 'Hot Failover Transcoder',
+              health: (activeWeights['transcoder-us-01'] || 0) > 0.5 ? 'Active Shift' : 'Warm Standby',
+              statusColor: usStandbyColor,
+              trafficWeight: `${Math.round((activeWeights['transcoder-us-01'] || 0) * 100)}%`,
+            });
+          }}
+          onPointerOut={() => onHoverNode?.(null)}
+        >
           <sphereGeometry args={[0.28, 16, 16]} />
           <meshStandardMaterial
             color={usStandbyColor}

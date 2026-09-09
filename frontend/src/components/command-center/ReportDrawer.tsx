@@ -17,7 +17,7 @@ export const ReportDrawer: React.FC<ReportDrawerProps> = ({ isOpen, onClose, inc
     setActiveTab(type);
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/incidents/${incidentId}/report?format=${type}`);
+      const res = await fetch(`/api/v1/incidents/${incidentId}/report?format=${type}`);
       if (res.ok) {
         const data = await res.json();
         setReportMarkdown(data.markdown);

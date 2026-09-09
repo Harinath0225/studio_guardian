@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { X, ShieldCheck, Calculator, ArrowRight } from 'lucide-react';
 
 interface DataProvenanceDrawerProps {
@@ -19,8 +19,8 @@ export const DataProvenanceDrawer: React.FC<DataProvenanceDrawerProps> = ({
     if (isOpen) {
       setLoading(true);
       const url = snapshotId 
-        ? `http://localhost:8000/api/v1/predictive/provenance?snapshot_id=${snapshotId}`
-        : 'http://localhost:8000/api/v1/predictive/provenance';
+        ? `/api/v1/predictive/provenance?snapshot_id=${snapshotId}`
+        : '/api/v1/predictive/provenance';
       
       fetch(url)
         .then((res) => res.json())

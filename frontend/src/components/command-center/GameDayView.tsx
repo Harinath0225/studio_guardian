@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Flame, Radio, RotateCcw, AlertOctagon, CheckCircle2 } from 'lucide-react';
 
 interface GameDayViewProps {
@@ -13,7 +13,7 @@ export const GameDayView: React.FC<GameDayViewProps> = ({ onScenarioTriggered })
     setLoading(true);
     setActiveMessage(`Injecting scenario: ${label}...`);
     try {
-      const res = await fetch(`http://localhost:8000${endpoint}`, {
+      const res = await fetch(`${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });

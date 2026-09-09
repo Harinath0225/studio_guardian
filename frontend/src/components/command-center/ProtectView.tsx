@@ -54,20 +54,20 @@ export const ProtectView: React.FC<ProtectViewProps> = ({
               </span>
             </div>
 
-            <h3 className="text-lg font-bold text-white mb-2">
+            <h3 className="text-lg font-bold text-white mb-2 font-display">
               Transcoder Capacity Scaling (scale_transcoder_pool)
             </h3>
-            <p className="text-xs text-slate-400 mb-4">
+            <p className="text-sm text-slate-300 font-sans leading-relaxed mb-4 max-w-[70ch]">
               Proactively doubles transcoding worker slots (from 8 to 16 nodes) to shed impending queue buildup before packet drop begins.
             </p>
 
             <div className="grid grid-cols-2 gap-3 mb-4 text-xs font-mono">
-              <div className="p-3 bg-slate-950 rounded border border-slate-800">
-                <div className="text-slate-500">Target Subsystem</div>
+              <div className="p-3 bg-slate-950 rounded-lg border border-slate-800">
+                <div className="text-slate-400">Target Subsystem</div>
                 <div className="text-slate-200 font-semibold mt-0.5">transcoder-worker-pool</div>
               </div>
-              <div className="p-3 bg-slate-950 rounded border border-slate-800">
-                <div className="text-slate-500">Blast Radius Risk</div>
+              <div className="p-3 bg-slate-950 rounded-lg border border-slate-800">
+                <div className="text-slate-400">Blast Radius Risk</div>
                 <div className="text-emerald-400 font-semibold mt-0.5">0.0% (Isolated Scale)</div>
               </div>
             </div>

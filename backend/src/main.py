@@ -32,7 +32,7 @@ from src.api.review import router as review_router
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
-    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
+    allow_origin_regex=r"^https?://.*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -49,6 +49,10 @@ app.include_router(observability_router)
 app.include_router(review_router)
 
 
+import os
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
 @app.get("/healthz")
 async def health_check():
     return {
@@ -57,10 +61,31 @@ async def health_check():
         "version": "1.0.0"
     }
 
-@app.get("/")
-async def root():
-    return {
-        "name": "Studio Guardian API",
-        "status": "online",
-        "docs_url": "/docs"
-    }
+frontend_dist = os.getenv(
+    "FRONTEND_DIST",
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist"))
+)
+
+if os.path.isdir(frontend_dist):
+    assets_dir = os.path.join(frontend_dist, "assets")
+    if os.path.isdir(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        file_path = os.path.join(frontend_dist, full_path)
+        if full_path and os.path.isfile(file_path):
+            return FileResponse(file_path)
+        index_file = os.path.join(frontend_dist, "index.html")
+        if os.path.isfile(index_file):
+            return FileResponse(index_file)
+        return {"name": "Studio Guardian API", "status": "online"}
+else:
+    @app.get("/")
+    async def root():
+        return {
+            "name": "Studio Guardian API",
+            "status": "online",
+            "docs_url": "/docs"
+        }
+
